@@ -215,6 +215,7 @@ function tickNpcWorld(world, locations, random = Math.random, now = Date.now()) 
     const damageA=4+Math.floor(random()*13),damageB=4+Math.floor(random()*13);
     b.health=clamp(b.health-damageA,0,100);a.health=clamp(a.health-damageB,0,100);a.action=b.action='combat';a.behavior=b.behavior='combat';a.mood=b.mood='в бою';
     for(const [victim,killer] of [[a,b],[b,a]])if(victim.health<=0&&victim.alive){victim.alive=false;victim.action='dead';victim.deathCause=`погиб в бою с группировкой «${killer.faction}»`;victim.diedAt=now;victim.combatDeaths=(Number(victim.combatDeaths)||0)+1;killer.combatKills=(Number(killer.combatKills)||0)+1;killer.lastCombatKillAt=now;killer.lastVictim=victim.name;engagement.losses++;}
+    engagement.participantSnapshots ||= [];for(const unit of [a,b]){const snapshot={id:unit.id,name:unit.name,faction:unit.faction,role:unit.role,health:unit.health,alive:unit.alive,action:unit.action,behavior:unit.behavior,updatedAt:now};const index=engagement.participantSnapshots.findIndex(x=>x.id===unit.id);if(index>=0)engagement.participantSnapshots[index]=snapshot;else engagement.participantSnapshots.push(snapshot);}engagement.participantSnapshots=engagement.participantSnapshots.slice(-24);
     if(!battle)world.battlefronts.unshift(engagement);
     const attackAlive=group.filter(n=>n.alive&&n.faction===engagement.attacker).length;
     const defenseAlive=group.filter(n=>n.alive&&n.faction===engagement.defender).length;

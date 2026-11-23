@@ -1,3 +1,12 @@
+# ZONE ONLINE 4.59.0
+
+## 4.59.0 — Sector Intelligence, Tactical Battle Reports & Balanced Starter Budget
+- Aligned the starter supply budget with the setup UI at 400 points; over-budget item selections are rejected and faction starter kits remain within budget.
+- Clicking a sector on the full Zone map now opens an intelligence card with faction control, NPC and online-player counts, key points, anomalies, mutant groups, active battles and artifact signals. Travel requires an explicit route action.
+- NPC battle hotspots now show combatant names, factions, roles, health bars and casualty status, backed by persistent participant snapshots.
+- Added eight anomaly fields, including deterministic migration for existing local saves and persistent server worlds.
+- Added regression tests for budget consistency, sector intelligence, combat rosters, anomaly migration and duplicate function declarations.
+
 # ZONE ONLINE 4.58.1
 
 ## 4.58.1 — Starter Arsenal, Faction Quests & Tactical Combat Markers

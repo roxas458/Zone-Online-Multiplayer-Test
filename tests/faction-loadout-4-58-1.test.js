@@ -22,7 +22,7 @@ test('4.58.1 starter weapon list exposes every server-supported starter firearm'
   const ids=[...supported.matchAll(/'([^']+)'/g)].map(match=>match[1]);
   assert.equal(ids.length,30);
   for(const id of ids)assert.ok(shared.includes(`TRADE_ITEM_IDS.add('${id}')`),`${id} is accepted by server inventory rules`);
-  assert.match(js,/const STARTER_BUDGET=650/);
+  assert.match(js,/const STARTER_BUDGET=400/);
 });
 
 test('4.58.1 quests are scoped to the selected faction and acceptance is guarded',()=>{

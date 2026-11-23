@@ -8,7 +8,7 @@ const TARGET_MUTANT_PACKS=54;
 const ZONES=['cordon','dump','bar','agro','dark','yantar','army','red','pripyat','zaton','jupiter','radar','wild','darkhollow','limansk','swamps'];
 function initEcosystem(world){
   world.ecosystem ||= {mutantPacks:[],anomalies:[],bases:{},markets:{},clans:{},events:[],revision:1};
-  const e=world.ecosystem; e.anomalies ||= [];
+  const e=world.ecosystem; e.anomalies ||= []; e.mutantPacks ||= []; e.bases ||= {}; e.markets ||= {}; e.clans ||= {}; e.events ||= []; e.revision ||= 1;
   if(!e.mutantPacks.length){for(let i=0;i<TARGET_MUTANT_PACKS;i++)e.mutantPacks.push({id:`pack_${i+1}`,species:SPECIES[i%SPECIES.length],location:ZONES[(i*7+1)%ZONES.length],count:2+(i*3)%7,aggression:25+(i*13)%76,health:100,updatedAt:Date.now()});}
   else if(e.mutantPacks.length<TARGET_MUTANT_PACKS){
     const existing=new Set(e.mutantPacks.map(p=>p.id));
@@ -21,7 +21,9 @@ function initEcosystem(world){
     const center=SECTOR_COORDS[pack.location]||SECTOR_COORDS.cordon;
     if(!Number.isFinite(Number(pack.x))||!Number.isFinite(Number(pack.y))){const angle=((index*137.508)%360)*Math.PI/180,radius=24+(index%7)*11;pack.x=center[0]+Math.cos(angle)*radius;pack.y=center[1]+Math.sin(angle)*radius;}
   }
-  if(!e.anomalies.length){const kinds=['Электра','Жарка','Воронка','Кисель','Трамплин','Карусель','Пузырь','Пси-поле'];for(let i=0;i<28;i++)e.anomalies.push({id:`anomaly_${i+1}`,kind:kinds[i%kinds.length],location:ZONES[(i*5+3)%ZONES.length],danger:35+(i*17)%66,stability:45+(i*11)%55,discovered:false,updatedAt:Date.now()});}
+  const anomalyKinds=['Электра','Жарка','Воронка','Кисель','Трамплин','Карусель','Пузырь','Пси-поле','Газировка','Мясорубка','Пепелище','Комета'];
+  if(!e.anomalies.length){for(let i=0;i<36;i++)e.anomalies.push({id:`anomaly_${i+1}`,kind:anomalyKinds[i%anomalyKinds.length],location:ZONES[(i*5+3)%ZONES.length],danger:35+(i*17)%66,stability:45+(i*11)%55,discovered:false,updatedAt:Date.now()});}
+  else {const existing=new Set(e.anomalies.map(a=>a.id));for(let i=28;i<36;i++){const id=`anomaly_${i+1}`;if(existing.has(id))continue;e.anomalies.push({id,kind:anomalyKinds[i%anomalyKinds.length],location:ZONES[(i*5+3)%ZONES.length],danger:38+(i*13)%58,stability:42+(i*9)%56,discovered:false,updatedAt:Date.now()});existing.add(id);}}
   for(const [loc,owner] of Object.entries(world.territoryOwners||{}))e.bases[loc] ||= {location:loc,faction:owner,level:1,fortification:20,supplies:70,updatedAt:Date.now()};
   for(const loc of ZONES)e.markets[loc] ||= {location:loc,priceIndex:1,scarcity:0,updatedAt:Date.now()};
   return e;
