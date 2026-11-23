@@ -25,7 +25,7 @@ test('player movement is animated and persisted instead of teleporting', () => {
 
 test('NPCs have independently refreshed patrol positions and ambient world events', () => {
   assert.match(js, /function npcPosition\(n\)/);
-  assert.match(js, /worldTick=setInterval\(updateNpcLayer,1800\)/);
+  assert.match(js, /worldTick=setInterval\(\(\)=>\{simulateWorld\(\);updateNpcLayer\(\);\},1800\)/);
   assert.match(js, /function ambientEvent\(hour\)/);
   assert.match(js, /Одиночки|бандитов|туман/);
 });
@@ -58,8 +58,9 @@ test('Zaton story campaign has an expanded named loner and bandit cast with dist
 });
 
 test('NPC patrols interpolate between route points and the story roster is visible in the PDA sidebar', () => {
-  assert.match(js, /const blend=\(state\.time%3\)\/3/);
-  assert.match(js, /ИЗВЕСТНЫЕ В ОКРУГЕ · \$\{npcs\.length\} ЧЕЛОВЕК/);
+  assert.match(js, /function moveNpc\(n,a\)/);
+  assert.match(js, /state\.npcStates/);
+  assert.match(js, /ИЗВЕСТНЫЕ В ОКРУГЕ · \$\{npcs\.filter\(n=>npcState\(n\)\.alive\)\.length\} ЖИВЫХ/);
   assert.match(css, /\.story-hero-card/);
 });
 
@@ -80,4 +81,15 @@ test('4.62 Zaton NPCs use time-of-day route variations and nearby activity repor
   assert.match(js, /function updateNpcLayer\(\)/);
   assert.match(js, /dist\(state\.player,npcPosition\(n\)\)<7/);
   assert.match(js, /Сова|Барин|Макар «Ржавый»|Юла|Горшок|Лесник|Оскар/);
+});
+
+
+test('4.63 story A-Life persists NPC health, casualties, autonomous movement and faction combat', () => {
+  assert.match(js, /function simulateWorld\(\)/);
+  assert.match(js, /function resolveCombat\(\)/);
+  assert.match(js, /a\.health=Math\.max\(0,a\.health-damageA\)/);
+  assert.match(js, /a\.alive=false;a\.status='погиб'/);
+  assert.match(js, /npcStates:state\.npcStates/);
+  assert.match(js, /story-npc fallen/);
+  assert.match(js, /Погиб сталкер/);
 });

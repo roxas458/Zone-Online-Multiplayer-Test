@@ -143,3 +143,16 @@ Verification: `node --test` — 365 tests passed, 0 failed. The story-mode JavaS
 - Added a protagonist dossier panel and character portrait using the project's bundled portrait assets.
 - Kept the campaign save isolated under `zoneStorySave`; the faction-war campaign remains untouched.
 - Validation: `npm test` — 368 tests passed.
+
+
+## 4.63.0 — Zaton A-Life encounters and persistent NPC casualties
+
+- Replaced purely time-derived NPC marker positions with individual persistent world agents. Each named NPC now has saved coordinates, a patrol waypoint, health, alive/dead state, activity status and a squad assignment.
+- Added autonomous movement along each NPC's local route, with slower movement for wounded characters and a faster night watch pace for guards.
+- Added hostile loner/bandit encounters. NPCs exchange simulated damage, can be wounded or killed, and casualties remain marked on the map and in the PDA roster.
+- Added local ally support in firefights and basic medical recovery by Doctor “Shрам” for nearby wounded loners.
+- NPC condition, location, squad and casualties persist in the separate `zoneStorySave`; the faction-war save remains untouched.
+- Added dedicated tests for persistent A-Life state, autonomous combat and casualties.
+- Validation: `npm test` — 371 tests passed, 0 failed; `node --check public/js/story-mode.js` passed.
+
+Note: this is a local browser-side story simulation prototype. Combat is abstracted and probabilistic; there is not yet weapon-specific ballistics, visible corpse sprites, mutant AI, pathfinding around terrain or server-authoritative multiplayer simulation.
