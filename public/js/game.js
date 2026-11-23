@@ -1,4 +1,4 @@
-// ZONE ONLINE 4.58.1 browser client. ZONE REPORTS / STARTER LOADOUT / SQUAD PAGE RESTORE.
+// ZONE ONLINE 4.59.0 browser client. ZONE REPORTS / STARTER LOADOUT / SQUAD PAGE RESTORE.
 const clone=o=>JSON.parse(JSON.stringify(o));
 const base={
  name:"Новичок",money:1450,hp:100,radiation:0,radiationProtectionUntil:0,stamina:85,hunger:18,thirst:20,rep:10,day:1,hour:9,loc:"cordon",faction:"Одиночки",xp:0,meetings:0,completed:0,flags:{metSid:false,metWolf:false,heardBar:false,foundArtifact:false,helpedWolf:false},
@@ -1029,7 +1029,34 @@ document.addEventListener('fullscreenchange',()=>{if(document.fullscreenElement!
 function setMapMode(mode){zoneMapDirty=true;zoneMapMode=mode==='local'?'local':'zone';zoneMapCenter=null;$('mapModeZone')?.classList.toggle('active',zoneMapMode==='zone');$('mapModeLocal')?.classList.toggle('active',zoneMapMode==='local');$('mapHint').textContent=zoneMapMode==='local'?'Поставь метку на свободном месте. Персонаж самостоятельно и медленно пойдёт к ней.':'Общая карта: выбери сектор, чтобы подтвердить переход.';renderZoneMap();if(zoneMapMode==='zone')toggleMapFullscreen(true)}
 const LOCAL_ROUTES={chaes:['pripyat','radar'],zaton:['jupiter','pripyat'],pripyat:['chaes','zaton','jupiter','radar'],jupiter:['zaton','pripyat','red','wild'],limansk:['red','wild'],red:['limansk','jupiter','radar','army'],radar:['chaes','pripyat','red','army'],army:['radar','red','wild','bar'],wild:['limansk','jupiter','army','bar','yantar'],bar:['wild','army','dump'],yantar:['wild','dump','agro'],dump:['bar','yantar','dark','agro','cordon'],agro:['yantar','dump','dark','cordon'],dark:['dump','agro','darkhollow'],cordon:['dump','agro','swamps'],swamps:['cordon','darkhollow'],darkhollow:['swamps','dark']};
 function localRoute(from,to){const q=[[from]],seen=new Set([from]);while(q.length){const path=q.shift(),at=path[path.length-1];if(at===to)return path;for(const n of LOCAL_ROUTES[at]||[])if(!seen.has(n)){seen.add(n);q.push([...path,n]);}}return null;}
-function handleMapSectorSelect(id){if(!id||id===g.loc){selectLocation(id||g.loc);return;}const l=g.locations.find(x=>x.id===id);if(!l)return;if(activePlayerSquad&&activePlayerSquad.leader!==zonePlayerId)return alert('Маршрутом отряда управляет командир.');const dest=$('expeditionDestination');if(dest)dest.value=id;zoneMapMode='zone';zoneMapCenter=null;zoneMapDirty=true;startExpedition();updateMoveOrderStatus(`Прокладываю маршрут в «${l.name}»…`);}
+function handleMapSectorSelect(id){showMapSectorCard(id||g.loc);}
+function beginMapSectorTravel(id){
+ const l=(g.locations||[]).find(x=>x.id===id);if(!l)return;
+ if(id===g.loc){closeMapEntityCard();return;}
+ if(activePlayerSquad&&activePlayerSquad.leader!==zonePlayerId)return alert('Маршрутом отряда управляет командир.');
+ const dest=$('expeditionDestination');if(dest)dest.value=id;zoneMapMode='zone';zoneMapCenter=null;zoneMapDirty=true;startExpedition();updateMoveOrderStatus(`Прокладываю маршрут в «${l.name}»…`);
+}
+function showMapSectorCard(id){
+ const sector=(g.locations||[]).find(l=>l.id===id),card=$('mapEntityCard');if(!sector||!card)return;
+ const npcSource=serverWorld?.npcState?Object.values(serverWorld.npcState):(g.npcs||[]);
+ const npcs=npcSource.filter(n=>(n.location||n.loc)===id),alive=npcs.filter(n=>n.alive!==false),dead=npcs.length-alive.length;
+ const points=Object.values(serverWorld?.keyPoints||{}).filter(p=>p.location===id),localPoints=g.keyPoints?.[id]||[];
+ const anomalies=(ecologyData().anomalies||[]).filter(a=>a.location===id),mutants=(ecologyData().mutantPacks||[]).filter(p=>p.location===id&&Number(p.count)>0);
+ const battles=(serverWorld?.battlefronts||[]).filter(b=>b.location===id&&b.status==='active');
+ const artifacts=ensureArtifactSites().filter(a=>a.location===id&&!a.collected),players=(onlinePlayers||[]).filter(p=>p.location===id);
+ const factionCounts=new Map();for(const n of alive)factionCounts.set(n.faction||'Неизвестно',(factionCounts.get(n.faction||'Неизвестно')||0)+1);
+ const factionSummary=[...factionCounts].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([f,c])=>`${escapeHtml(f)} — ${c}`).join(' · ')||'Нет подтверждённых контактов';
+ const knownPoints=localPoints.map(p=>`<li>${escapeHtml(p.name)} <small>· ${escapeHtml(p.kind||'точка')} · ${p.discovered?escapeHtml(p.desc||'изучено'):'не разведано'}</small></li>`).join('');
+ const strategicSummary=points.length?points.slice(0,8).map(p=>`<li><b>${escapeHtml(p.name||'Объект')}</b> · ${escapeHtml(p.owner||'неизвестно')} · ${Math.round(Number(p.control)||0)}%</li>`).join(''):'<li>Данные о стратегических объектах пока не получены.</li>';
+ card.hidden=false;card.innerHTML=`<div class="map-entity-head"><b>СЕКТОР · ${escapeHtml(sector.name||locationName(id))}</b><button type="button" onclick="closeMapEntityCard()" aria-label="Закрыть">×</button></div>
+ <div class="map-entity-meta">Контроль территории: <b>${escapeHtml(sector.owner||'Неизвестно')}</b> · уровень контроля ${Math.round(Number(sector.control)||0)}% · риск ${escapeHtml(sector.risk||'—')}</div><p class="small muted">${escapeHtml(sector.desc||'Сведения о секторе обновляются по мере разведки и активности местных группировок.')}</p>
+ <div class="sector-intel-grid"><div><b>${alive.length}</b><small>живых НПС</small></div><div><b>${players.length}</b><small>игроков онлайн</small></div><div><b>${anomalies.length}</b><small>аномалий</small></div><div><b>${mutants.reduce((sum,p)=>sum+(Number(p.count)||0),0)}</b><small>мутантов</small></div><div><b>${battles.length}</b><small>активных боёв</small></div><div><b>${artifacts.length}</b><small>сигналов артефактов</small></div><div><b>${localPoints.length+points.length}</b><small>точек интереса</small></div></div>
+ <h4>Состав сталкеров</h4><p class="small muted">${factionSummary}${dead?` · погибших: ${dead}`:''}</p>
+ <h4>Стратегические объекты</h4><ul class="sector-intel-list">${strategicSummary}</ul>
+ <h4>Известные точки интереса</h4><ul class="sector-intel-list">${knownPoints||'<li>Неизученные ориентиры. Проведи полевую разведку, чтобы получить координаты.</li>'}</ul>
+ <div class="map-entity-meta">Экология: ${anomalies.length} аномальных полей · ${mutants.length} групп мутантов · ${artifacts.length} сигналов находок</div>
+ <div class="map-player-actions">${id===g.loc?'<button type="button" disabled>Ты находишься в этом секторе</button>':`<button type="button" onclick="beginMapSectorTravel('${String(id).replace(/[^a-z0-9_-]/gi,'')}')">Проложить маршрут в сектор</button>`}<button type="button" onclick="selectLocation('${String(id).replace(/[^a-z0-9_-]/gi,'')}')">Открыть подробную карточку сектора</button></div>`;
+}
 
 function sectorCenter(id){return zoneSectorCoords[id]||[500,1000]}
 function playerWorldPosition(){if(g.mapCoordinateVersion!==2||!g.worldPosition||!Number.isFinite(g.worldPosition.x)||!Number.isFinite(g.worldPosition.y)){const c=sectorCenter(g.loc);g.worldPosition={x:c[0],y:c[1]+24};g.mapCoordinateVersion=2;}const e=g.expedition;if(e?.status==='travelling'&&Array.isArray(e.path)&&e.path[e.index+1]){const a=sectorCenter(e.path[e.index]||g.loc),b=sectorCenter(e.path[e.index+1]),start=Number(e.startedAt)||Date.now(),end=Number(e.nextHopAt)||start+90000,duration=Math.max(1000,end-start),t=Math.max(0,Math.min(.98,(Date.now()-start)/duration));return {x:a[0]+(b[0]-a[0])*t,y:a[1]+24+(b[1]-a[1])*t};}return g.worldPosition;}
@@ -1182,7 +1209,22 @@ function showMapKeyPoint(id){
 }
 function showMapStash(id){const st=(currentStashes||[]).find(x=>x.id===id&&x.discovered&&!x.looted),card=$('mapEntityCard');if(!st||!card)return;const d=Math.hypot(playerWorldPosition().x-Number(st.x),playerWorldPosition().y-Number(st.y));card.hidden=false;card.innerHTML=`<div class="map-entity-head"><b>ТАЙНИК · ${escapeHtml(locationName(st.location))}</b><button type="button" onclick="closeMapEntityCard()">×</button></div><div class="map-entity-meta">${Math.round(d)} м от тебя · ${d<=18?'Можно обыскать':'Нужно подойти ближе (18 м)'}</div><p class="small muted">${escapeHtml(st.note||'Спрятанные припасы')}</p><div class="map-player-actions">${d<=18?`<button type="button" onclick="lootFieldStash('${escMapAttr(st.id)}')">Обыскать тайник</button>`:`<button type="button" onclick="approachStash('${escMapAttr(st.id)}')">Подойти к тайнику</button>`}</div>`;mapRadiusTarget=null;zoneMapCenter={x:Number(st.x),y:Number(st.y)};zoneMapDirty=true;renderZoneMap();}
 function approachStash(id){const st=(currentStashes||[]).find(x=>x.id===id&&x.discovered&&!x.looted);if(!st)return;issueApproachOrder({x:Number(st.x),y:Number(st.y)},'stash',id);showMapStash(id);}
-function showMapBattle(id){const battle=(serverWorld?.battlefronts||[]).find(x=>String(x.id)===String(id));const card=$('mapEntityCard');if(!battle||!card)return;const participants=(battle.participants||[]).map(pid=>npcBy(pid)).filter(Boolean);const names=participants.map(n=>`${n.name||'Сталкер'} · ${n.faction||'неизвестно'} · ${n.alive===false?'погиб':`${Math.round(Number(n.health??100))}% здоровья`}`);card.hidden=false;card.innerHTML=`<div class="map-entity-head"><b>🔥 БОЕВОЕ СТОЛКНОВЕНИЕ</b><button type="button" onclick="closeMapEntityCard()" aria-label="Закрыть">×</button></div><div class="map-entity-meta">${escapeHtml(locationName(battle.location))} · ${escapeHtml(battle.attacker||'Сторона А')} против ${escapeHtml(battle.defender||'Сторона Б')}</div><div class="map-entity-meta">Раундов: ${Number(battle.rounds)||0} · Потери: ${Number(battle.losses)||0} · Статус: ${battle.status==='active'?'идёт бой':'завершено'}</div>${battle.winner?`<div class="map-entity-meta">Победитель: ${escapeHtml(battle.winner)}</div>`:''}<div class="map-battle-roster"><b>Участники</b>${names.length?names.map(name=>`<div>${escapeHtml(name)}</div>`).join(''):'<div class="small muted">Персональный состав столкновения пока не получен.</div>'}</div><div class="map-player-actions"><button type="button" onclick="zoneMapMode='zone';zoneMapCenter=null;renderZoneMap()">Обзор всей Зоны</button></div>`;}
+function showMapBattle(id){
+ const engagement=(serverWorld?.battlefronts||[]).find(x=>String(x.id)===String(id)),card=$('mapEntityCard');if(!engagement||!card)return;const battle=engagement;
+ const ids=Array.isArray(battle.participants)?battle.participants:[];
+ const roster=ids.map(entry=>{const pid=typeof entry==='string'?entry:entry?.id;const live=(serverWorld?.npcState||{})[pid]||npcBy(pid)||{};const snapshot=(engagement.participantSnapshots||[]).find(x=>x.id===pid)||{};return {...snapshot,...live,id:pid||snapshot.id};}).filter(n=>n.id);
+ const hp=n=>Math.max(0,Math.min(100,Math.round(Number(n.health??n.hp??100))));
+ const renderSide=(faction)=>{const members=roster.filter(n=>(n.faction||'Неизвестно')===faction);return members.length?members.map(n=>{const value=hp(n),dead=n.alive===false||value<=0;return `<div class="map-battle-member"><span><b>${escapeHtml(n.name||'Сталкер')}</b><small>${escapeHtml(n.role||'Боец')} · ${escapeHtml(n.behavior||n.action||'в секторе')} · ${dead?'погиб': 'в строю'}</small></span><span class="map-battle-health"><b>${value}%</b><i><em style="width:${value}%"></em></i></span></div>`;}).join(''):'<div class="small muted">Нет подтверждённых участников.</div>';};
+ const sides=[...new Set(roster.map(n=>n.faction||'Неизвестно'))];const attack=engagement.attacker||sides[0]||'Сторона А',defend=engagement.defender||sides.find(x=>x!==attack)||'Сторона Б';
+ card.hidden=false;card.innerHTML=`<div class="map-entity-head"><b>⚔ ТАКТИЧЕСКИЙ ОТЧЁТ · БОЕВОЕ СТОЛКНОВЕНИЕ</b><button type="button" onclick="closeMapEntityCard()" aria-label="Закрыть">×</button></div>
+ <div class="map-entity-meta">${escapeHtml(locationName(engagement.location))} · ${escapeHtml(attack)} против ${escapeHtml(defend)}</div>
+ <div class="map-entity-meta">Раундов: ${Number(engagement.rounds)||0} · Потери: ${Number(engagement.losses)||0} · Статус: ${engagement.status==='active'?'идёт бой':'завершено'}${engagement.winner?` · победитель: ${escapeHtml(engagement.winner)}`:''}</div>
+ <h4>${escapeHtml(attack)} · участники</h4><div class="map-battle-roster">${renderSide(attack)}</div>
+ <h4>${escapeHtml(defend)} · участники</h4><div class="map-battle-roster">${renderSide(defend)}</div>
+ <div class="map-entity-meta">Показаны имена, группировки, роли, состояние и текущий процент здоровья из последнего обновления мира.</div>
+ <div class="map-player-actions"><button type="button" onclick="showMapSectorCard('${String(engagement.location).replace(/[^a-z0-9_-]/gi,'')}')">Сведения о секторе</button><button type="button" onclick="zoneMapMode='zone';zoneMapCenter=null;renderZoneMap()">Обзор всей Зоны</button></div>`;
+}
+
 function showMapNpc(id){
  const n=npcBy(id);if(!n)return;
  mapRadiusTarget=id;zoneMapMode=(n.loc||n.location)===g.loc?'local':'zone';const p=npcMapPosition(n);zoneMapCenter={x:p[0],y:p[1]};zoneMapDirty=true;renderZoneMap();
@@ -1410,7 +1452,7 @@ function openSetupPortraitPicker(){renderSetupPortraits();const modal=$('setupPo
 function closeSetupPortraitPicker(){const modal=$('setupPortraitModal');if(modal)modal.hidden=true;}
 function chooseSetupPortrait(file){if(!/^stalker-(0[1-9]|1[0-6])\.webp$/.test(file))return;selectedSetupPortrait=file;renderSetupPortraits();closeSetupPortraitPicker();}
 
-const STARTER_BUDGET=650;
+const STARTER_BUDGET=400;
 const STARTER_GEAR={
  weapon_none:{id:'weapon_none',name:'Без основного оружия',type:'Оружие',desc:'Начать без основного оружия.',weight:0,value:0,points:0,slot:'weapon'},
  weapon_pm:{id:'weapon_pm',name:'Пистолет ПМ',type:'Оружие',desc:'Компактное оружие для первых вылазок.',weight:.9,value:420,power:13,price:850,points:55,slot:'weapon'},
@@ -1474,7 +1516,7 @@ for(const row of weaponCatalogue){
  STARTER_GEAR[id]={id,name,type:'Оружие',desc:`${type}. Калибр: ${caliber}.`,weight:Number(weight)||1,value:Math.round(cost*.45),power:Math.max(12,Math.round((Number(rating)||70)/5)),price:cost,points:Math.round(45+Math.sqrt(cost)*1.3),slot:'weapon'};
 }
 const STARTER_WEAPON_OPTIONS=Object.values(STARTER_GEAR).filter(item=>item.slot==='weapon').map(item=>item.id);
-let setupLoadout={weapon:'weapon_pm',suit:'armor_leather',tool:'detector_echo',backpack:'backpack_standard',supplies:['med','bread','bread','bandage','water']};
+let setupLoadout={weapon:'weapon_pm',suit:'armor_leather',tool:'detector_echo',backpack:'backpack_standard',supplies:['med','bread','bandage']};
 function setupSelectedItems(){return [setupLoadout.weapon,setupLoadout.suit,setupLoadout.tool,setupLoadout.backpack,...setupLoadout.supplies].filter(id=>id&&id!=='weapon_none'&&id!=='armor_none'&&id!=='detector_none');}
 function setupSpent(){return setupSelectedItems().reduce((sum,id)=>sum+(STARTER_GEAR[id]?.points||0),0);}
 const factionSuit={ 'Одиночки':'armor_stalker','Долг':'armor_duty','Свобода':'armor_freedom','Бандиты':'armor_bandit','Военные':'armor_military','Учёные':'armor_ecologist','Наёмники':'armor_merc','Монолит':'armor_monolith','Чистое небо':'armor_clearsky','Ренегаты':'armor_renegade' };
@@ -1487,11 +1529,22 @@ function renderSetupLoadout(){
  root.innerHTML=`<div class="setup-choice-grid">${fields.map(f=>select(...f)).join('')}</div><div class="setup-supplies-head">ПРИПАСЫ / ДОБАВЛЯЙ ИЛИ УБИРАЙ</div><div class="setup-supplies">${supplies.map(([id,label])=>{const count=setupLoadout.supplies.filter(x=>x===id).length;return `<div class="setup-supply-row"><span>${label} <small>${STARTER_GEAR[id].points} очк. · ${count} шт.</small></span><div><button type="button" onclick="changeSetupSupply('${id}',-1)" aria-label="Убрать ${label}">−</button><b>${count}</b><button type="button" onclick="changeSetupSupply('${id}',1)" aria-label="Добавить ${label}">+</button></div></div>`}).join('')}</div>`;
  updateSetupBudget();
 }
-function changeSetupSlot(slot,id){if(!Object.hasOwn(STARTER_GEAR,id))return;setupLoadout[slot]=id;renderSetupLoadout();}
-function changeSetupSupply(id,delta){const current=setupLoadout.supplies.filter(x=>x===id).length;if(delta>0){if(current>=5)return;setupLoadout.supplies.push(id);}else{const index=setupLoadout.supplies.lastIndexOf(id);if(index>=0)setupLoadout.supplies.splice(index,1);}renderSetupLoadout();}
+function changeSetupSlot(slot,id){
+ if(!['weapon','suit','tool','backpack'].includes(slot)||!Object.hasOwn(STARTER_GEAR,id))return;
+ const previous=setupLoadout[slot];setupLoadout[slot]=id;
+ if(setupSpent()>STARTER_BUDGET){setupLoadout[slot]=previous;renderSetupLoadout();const note=$('setupLoadoutNote');if(note){note.textContent='Этот предмет превышает остаток бюджета. Выбери более доступный вариант или убери припасы.';note.classList.add('over-budget');}return;}
+ renderSetupLoadout();
+}
+function changeSetupSupply(id,delta){
+ if(!Object.hasOwn(STARTER_GEAR,id))return;const current=setupLoadout.supplies.filter(x=>x===id).length;
+ if(delta>0){if(current>=5)return;setupLoadout.supplies.push(id);if(setupSpent()>STARTER_BUDGET){setupLoadout.supplies.pop();renderSetupLoadout();const note=$('setupLoadoutNote');if(note){note.textContent='Недостаточно очков снабжения для этого припаса.';note.classList.add('over-budget');}return;}}
+ else{const index=setupLoadout.supplies.lastIndexOf(id);if(index>=0)setupLoadout.supplies.splice(index,1);}
+ renderSetupLoadout();
+}
 function updateSetupBudget(){
  const spent=setupSpent(),left=STARTER_BUDGET-spent,spentEl=$('setupPointsSpent'),leftEl=$('setupPointsLeft'),bar=$('setupBudgetBar'),note=$('setupLoadoutNote');
  if(spentEl)spentEl.textContent=spent;if(leftEl)leftEl.textContent=Math.max(0,left);if(bar)bar.style.width=Math.min(100,spent/STARTER_BUDGET*100)+'%';
+ const total=$('setupBudgetTotal'),max=$('setupBudgetMax');if(total)total.textContent=STARTER_BUDGET;if(max)max.textContent=STARTER_BUDGET;
  if(note){note.textContent=left<0?'Превышен лимит. Убери несколько предметов.':`Осталось ${left} очков снабжения. Неиспользованные очки не сгорают.`;note.classList.toggle('over-budget',left<0);}
  const start=$('setupStartButton');if(start)start.disabled=left<0;
 }
@@ -1502,11 +1555,11 @@ function updateSetupPreview(){
  if($('setupPreviewSpawn'))$('setupPreviewSpawn').textContent=`Точка появления: ${spawnNames[spawn]||spawn}`;const av=$('setupAvatar');if(av)av.innerHTML=`<img src="/assets/portraits/${selectedSetupPortrait}" alt="Портрет персонажа">`;const bg=setupBackgrounds[setupBackground];if($('setupBackgroundDesc')&&bg)$('setupBackgroundDesc').textContent=bg.desc;
  if($('setupStarterContract'))$('setupStarterContract').textContent=setupFaction==='Одиночки'?'На Кордоне Волк поможет освоиться, а Сидорович предложит первую работу.':`На базе «${setupFaction}» тебя встретит представитель группировки и выдаст первое поручение.`;
 }
-function resetStarterLoadout(){setupLoadout={weapon:'weapon_pm',suit:factionSuit[setupFaction]||'armor_leather',tool:'detector_echo',backpack:'backpack_standard',supplies:['med','bread','bread','bandage','water']};renderSetupLoadout();}
+function resetStarterLoadout(){setupLoadout={weapon:'weapon_pm',suit:factionSuit[setupFaction]||'armor_leather',tool:'detector_echo',backpack:'backpack_standard',supplies:['med','bread','bandage']};renderSetupLoadout();}
 function randomizeStarterLoadout(){
  const groups={weapon:STARTER_WEAPON_OPTIONS,suit:['armor_none','armor_leather','armor_stalker','armor_zarya',factionSuit[setupFaction]||'armor_stalker'],tool:['detector_none','detector_echo','detector_bear'],backpack:['backpack_standard','backpack_field','backpack_expedition']};
  let tries=0;do{for(const [slot,ids] of Object.entries(groups))setupLoadout[slot]=ids[Math.floor(Math.random()*ids.length)];setupLoadout.supplies=['med','bread','bandage'];if(Math.random()>.5)setupLoadout.supplies.push('anti_rad');if(Math.random()>.5)setupLoadout.supplies.push('water');tries++;}while(setupSpent()>STARTER_BUDGET&&tries<100);
- renderSetupLoadout();
+ if(setupSpent()>STARTER_BUDGET)resetStarterLoadout();else renderSetupLoadout();
 }
 function openCharacterSetup(){
  const root=$('characterSetup');if(!root)return;if(factionSuit[setupFaction]&&setupLoadout.suit==='armor_leather')setupLoadout.suit=factionSuit[setupFaction];
@@ -1515,7 +1568,7 @@ function openCharacterSetup(){
  $('factionDescription').textContent=factionLore[setupFaction]||'Выбранная сторона Зоны.';const spawn=factionSpawn[setupFaction]||'cordon';if($('setupSpawnInfo'))$('setupSpawnInfo').textContent=`Точка появления: ${spawnNames[spawn]||spawn}. Ты начнёшь игру у базы своей группировки.`;
  renderSetupLoadout();renderSetupPortraits();if($('setupBackground'))$('setupBackground').value=setupBackground;selectSetupBackground(setupBackground);updateSetupPreview();root.classList.add('show');
 }
-function selectSetupFaction(name){const current=$('setupCallsign').value,real=$('setupRealName').value;setupFaction=name;if(factionSuit[name])setupLoadout.suit=factionSuit[name];openCharacterSetup();$('setupCallsign').value=current;$('setupRealName').value=real;updateSetupPreview();}
+function selectSetupFaction(name){const current=$('setupCallsign').value,real=$('setupRealName').value;setupFaction=name;if(factionSuit[name])setupLoadout.suit=factionSuit[name];if(setupSpent()>STARTER_BUDGET)resetStarterLoadout();openCharacterSetup();$('setupCallsign').value=current;$('setupRealName').value=real;updateSetupPreview();}
 function confirmCharacter(){
  const name=cleanPlayerCallsign($('setupCallsign').value);let realName=cleanPlayerCallsign($('setupRealName').value).split(/\s+/)[0];if(!realName){realName=pickSetup(SETUP_FIRST_NAMES);$('setupRealName').value=realName;}
  if(name.length<2)return alert('Позывной должен содержать минимум 2 символа.');if(realName.length<2)return alert('Укажи имя персонажа.');
@@ -1668,8 +1721,9 @@ function survivalCamp(){initSurvival();if(g.survival.shelterUntil>Date.now())ret
 function survivalShelter(){initSurvival();const safe=['cordon','bar','yantar','swamps','army'].includes(g.loc);if(!safe&&Math.random()<.65)return alert('Укрытие не найдено. Осмотри сектор или вернись к базе.');g.survival.shelterUntil=Date.now()+10*60000;survivalEvent('Найдено укрытие. На десять минут ты защищён от открытого воздействия выброса.');livingNews('Укрытие найдено','Ты занял защищённую позицию в секторе '+here().name+'.');save();}
 function huntMutants(){initSurvival();if(Date.now()-g.survival.lastHuntAt<60000)return alert('После последней охоты нужно восстановиться. Подожди минуту.');const eco=ecologyData(),pack=(eco.mutantPacks||[]).find(x=>x.location===g.loc&&x.count>0);if(!pack)return alert('В этом секторе не обнаружено доступных групп мутантов. Проведи осмотр местности.');const weapon=String(g.equipment?.weapon||'');if(!weapon)return alert('Нужно экипировать оружие.');if(g.stamina<18)return alert('Для охоты нужно минимум 18 выносливости.');if(zoneSocket?.connected&&zonePlayerReady){zoneSocket.emit('survival:hunt',{packId:pack.id});return;}const result=window.ZoneSurvival.resolveHunt(pack,/АК|винтов|руж|СВД|Гроза/i.test(weapon)?75:45,g.stamina,Math.random());g.survival.lastHuntAt=Date.now();g.stamina=Math.max(0,g.stamina-18);if(result.ok){pack.count=Math.max(0,pack.count-1);addItem('mutant_trophy','Трофей мутанта','Материал','Добыча после охоты на мутанта.',.8,110);g.xp+=18;g.money+=35;survivalEvent(`Охота успешна: ${pack.species}. Получен трофей, +18 опыта и 35 ₽.`);log(`Охота на ${pack.species} завершилась успешно.`);}else{g.hp=Math.max(1,g.hp-result.damage);survivalEvent(result.reason+' Потеряно здоровья: '+result.damage+'.',true);log('Мутанты отбросили тебя.');}save();renderInventory();renderLivingZone();if($('world')?.classList.contains('active'))renderZoneMap();}
 function consumeExpeditionSupplies(risk){initSurvival();const kit=g.survival.kit,cost=window.ZoneSurvival.expeditionCost(risk,g.atmosphereState?.weather||'clear',!!g.emission?.active);if(kit?.rations&&kit?.water){g.hunger=Math.max(0,g.hunger-8);g.thirst=Math.max(0,g.thirst-18);g.survival.kit=null;}else{cost.stamina+=8;cost.hunger+=5;cost.thirst+=7;survivalEvent('Ты отправился без полноценного запаса припасов. Переход оказался тяжелее.',true);}g.stamina=Math.max(0,g.stamina-cost.stamina*(1-Math.min(.25,artifactEffect('staminaDrain'))));g.hunger=Math.min(100,g.hunger+cost.hunger);g.thirst=Math.min(100,g.thirst+cost.thirst);g.radiation=Math.min(100,radiationLevel()+cost.radiation);if(g.stamina<=0){g.hp=Math.max(1,g.hp-4);survivalEvent('Переход истощил тебя. Получено 4 урона.',true);}}
-function localEcology(){const zones=['cordon','swamps','dump','bar','agro','dark','yantar','army','red','pripyat','zaton','jupiter','radar','wild','darkhollow','limansk','chaes'];const species=['плоть','псевдособака','кабан','снорк','контролёр','кровосос','тушкан','зомбированный сталкер'];const kinds=['Электра','Жарка','Воронка','Кисель','Трамплин','Карусель','Пузырь','Пси-поле'];return {mutantPacks:zones.map((location,i)=>({id:'local_pack_'+i,location,species:species[(i*3)%species.length],count:2+(i*5)%6,aggression:30+(i*13)%70})),anomalies:zones.map((location,i)=>({id:'local_anomaly_'+i,location,kind:kinds[(i*5)%kinds.length],danger:35+(i*17)%65}))};}
-function ecologyData(){if(zoneSocket?.connected&&serverWorld?.ecosystem)return serverWorld.ecosystem;g.localEcology ||= (serverWorld?.ecosystem?clone(serverWorld.ecosystem):localEcology());return g.localEcology;}
+function localEcology(){const zones=['cordon','swamps','dump','bar','agro','dark','yantar','army','red','pripyat','zaton','jupiter','radar','wild','darkhollow','limansk','chaes'];const species=['плоть','псевдособака','кабан','снорк','контролёр','кровосос','тушкан','зомбированный сталкер'];const kinds=['Электра','Жарка','Воронка','Кисель','Трамплин','Карусель','Пузырь','Пси-поле','Газировка','Комета','Пепелище','Мясорубка'];const anomalies=zones.map((location,i)=>({id:'local_anomaly_'+i,location,kind:kinds[(i*5)%kinds.length],danger:35+(i*17)%65}));const extra=[['cordon','Газировка'],['dump','Мясорубка'],['yantar','Пепелище'],['red','Комета'],['pripyat','Пси-поле'],['swamps','Кисель'],['jupiter','Электра'],['dark','Воронка']];for(let i=0;i<extra.length;i++)anomalies.push({id:'local_anomaly_extra_'+(i+1),location:extra[i][0],kind:extra[i][1],danger:42+(i*9)%48});return {mutantPacks:zones.map((location,i)=>({id:'local_pack_'+i,location,species:species[(i*3)%species.length],count:2+(i*5)%6,aggression:30+(i*13)%70})),anomalies};}
+function ecologyData(){if(zoneSocket?.connected&&serverWorld?.ecosystem)return serverWorld.ecosystem;g.localEcology ||= (serverWorld?.ecosystem?clone(serverWorld.ecosystem):localEcology());const eco=g.localEcology;eco.anomalies ||= [];const extras=[['cordon','Газировка'],['dump','Мясорубка'],['yantar','Пепелище'],['red','Комета'],['pripyat','Пси-поле'],['swamps','Кисель'],['jupiter','Электра'],['dark','Воронка']];for(let i=0;i<extras.length;i++){const id='local_anomaly_extra_'+(i+1);if(!eco.anomalies.some(a=>a.id===id))eco.anomalies.push({id,location:extras[i][0],kind:extras[i][1],danger:42+(i*9)%48});}return eco;}
+
 let fieldSurveyTimer=null;
 
 
