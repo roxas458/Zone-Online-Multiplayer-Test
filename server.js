@@ -13,13 +13,9 @@ const { mergeClientSaveState } = require('./src/server/player-save');
 const { createGuestAuth } = require('./src/server/guest-auth');
 const { applyPlayerTrade } = require('./src/server/player-trade');
 const safeState = createSafeState(FACTIONS, LOCATIONS);
-const configuredGuestSessionSecret = process.env.ZONE_SESSION_SECRET;
-if (process.env.NODE_ENV === 'production' && !configuredGuestSessionSecret) {
-  throw new Error('ZONE_SESSION_SECRET is required in production. Configure a persistent secret of at least 32 bytes.');
-}
-const guestSessionSecret = configuredGuestSessionSecret || crypto.randomBytes(48).toString('hex');
+const guestSessionSecret = process.env.ZONE_SESSION_SECRET || crypto.randomBytes(48).toString('hex');
 const guestAuth = createGuestAuth({ secret: guestSessionSecret });
-if (!configuredGuestSessionSecret) console.warn('[auth] ZONE_SESSION_SECRET is not configured; local guest sessions will be invalidated when this process restarts.');
+if (!process.env.ZONE_SESSION_SECRET) console.warn('[auth] ZONE_SESSION_SECRET is not configured; guest sessions will be invalidated when this process restarts.');
 const { createMoveOrder, advanceMoveOrder } = require('./src/systems/player-orders');
 const { resolveSectorAtPosition } = require('./src/systems/sector-position');
 const { createExpedition, advanceExpedition, findRoute } = require('./src/systems/expedition');

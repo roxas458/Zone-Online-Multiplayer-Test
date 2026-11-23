@@ -1,6 +1,6 @@
 {
   "name": "zone-online",
-  "version": "4.60.1",
+  "version": "4.60.0",
   "private": true,
   "description": "Living A-Life routines for NPCs: camp visits, trader visits, artifact searches and remembered social encounters",
   "main": "server.js",
