@@ -156,3 +156,12 @@ Verification: `node --test` — 365 tests passed, 0 failed. The story-mode JavaS
 - Validation: `npm test` — 371 tests passed, 0 failed; `node --check public/js/story-mode.js` passed.
 
 Note: this is a local browser-side story simulation prototype. Combat is abstracted and probabilistic; there is not yet weapon-specific ballistics, visible corpse sprites, mutant AI, pathfinding around terrain or server-authoritative multiplayer simulation.
+
+
+## 4.64.0 — полноэкранный сюжетный режим
+
+- Сюжетная кампания занимает весь экран приложения.
+- Карта Затона растягивается на доступную высоту и ширину без квадратного ограничения; подложка сохраняет пропорции.
+- Боковая панель КПК прокручивается отдельно, карта остаётся основной рабочей областью.
+- Добавлена кнопка полноэкранного режима для браузера; на мобильных устройствах интерфейс адаптируется под высоту экрана.
+- Главное меню и вступительная сцена сюжетной кампании также используют всю площадь экрана.
