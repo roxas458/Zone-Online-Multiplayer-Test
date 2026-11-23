@@ -1,4 +1,14 @@
-# ZONE ONLINE 4.58.0
+# ZONE ONLINE 4.58.1
+
+## 4.58.1 — Starter Arsenal, Faction Quests & Tactical Combat Markers
+
+- Expanded character-creation weapon choices from three firearms to 35 supported entries, using the canonical server inventory IDs and starter-point costs.
+- Raised the starter supply budget to 650 points and connected the selected weapon's power to combat calculations.
+- Added separate starter and campaign quests for all ten factions; quest lists, acceptance and turn-in are now restricted to the player's faction.
+- Added location and item-delivery requirements for faction contracts, including delivery of any artifact for the Scientists.
+- Replaced the cartoon fire and muzzle-flash NPC combat marker with a restrained crossed-swords insignia and muted pulse.
+- Re-seed faction quest catalogs when confirming a newly created character so new games and post-death characters receive the correct faction missions.
+- Added regression coverage for faction isolation, starter weapons and the new combat marker.
 
 ## 4.58.0 — Visible NPC Battles & Tactical Battle Reports
 

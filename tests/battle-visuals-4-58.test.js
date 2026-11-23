@@ -7,12 +7,12 @@ const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
 const ai = fs.readFileSync(path.join(root, 'src/systems/npc-ai.js'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'public/css/game.css'), 'utf8');
 
-test('4.58 NPCs in combat are visibly marked with animated fire and muzzle flashes', () => {
+test('4.58.1 NPCs in combat use a restrained tactical insignia instead of fire', () => {
   assert.match(game, /marker-in-combat/);
-  assert.match(game, /combat-flame/);
-  assert.match(game, /combat-muzzle-flash/);
-  assert.match(css, /zoneFireFlicker/);
-  assert.match(css, /zoneMuzzleFlash/);
+  assert.match(game, /combat-insignia/);
+  assert.doesNotMatch(game, /combat-flame|combat-muzzle-flash|battle-hotspot-flame/);
+  assert.match(css, /combat-insignia-bg/);
+  assert.match(css, /display:none!important/);
 });
 
 test('4.58 active battlefronts are clickable map hotspots with battle details', () => {

@@ -28,7 +28,7 @@ test('4.38 character setup provides a point budget and starter gear selection',(
  assert.match(html,/id="setupLoadoutChoices"/);
  assert.match(html,/id="setupPointsLeft"/);
  assert.match(html,/id="setupStartButton"/);
- assert.match(js,/const STARTER_BUDGET=400/);
+ assert.match(js,/const STARTER_BUDGET=650/);
  assert.match(js,/function changeSetupSlot/);
  assert.match(js,/function changeSetupSupply/);
  assert.match(js,/function randomizeStarterLoadout/);
