@@ -36,3 +36,16 @@ test('4.49 server migrates legacy profiles once and rejects invalid tokens for c
   assert.match(client, /zoneGuestSessionToken/);
   assert.match(client, /sessionToken:localStorage\.getItem\('zoneGuestSessionToken'\)/);
 });
+
+
+test('production requires a persistent guest-session secret and Render generates one', () => {
+  const { spawnSync } = require('node:child_process');
+  const production = spawnSync(process.execPath, ['-e', "require('./server.js')"], {
+    cwd: root,
+    env: { ...process.env, NODE_ENV: 'production', PORT: '0', ZONE_SESSION_SECRET: '' }
+  });
+  assert.notEqual(production.status, 0);
+  assert.match(String(production.stderr), /ZONE_SESSION_SECRET is required in production/);
+  const render = fs.readFileSync(path.join(root, 'render.yaml'), 'utf8');
+  assert.match(render, /- key: ZONE_SESSION_SECRET\s+generateValue: true/);
+});

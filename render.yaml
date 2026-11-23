@@ -11,5 +11,7 @@ services:
         value: 22.16.0
       - key: NODE_ENV
         value: production
+      - key: ZONE_SESSION_SECRET
+        generateValue: true
       - key: DATABASE_URL
         sync: false

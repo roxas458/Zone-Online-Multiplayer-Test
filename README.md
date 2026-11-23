@@ -1,4 +1,10 @@
-# ZONE ONLINE 4.60.0
+# ZONE ONLINE 4.60.1
+
+## 4.60.1 — Persistent guest sessions and deployment safety
+- Production startup now requires `ZONE_SESSION_SECRET`; it no longer silently creates an ephemeral secret that invalidates every guest session after a restart.
+- Render Blueprint generates a persistent `ZONE_SESSION_SECRET` automatically.
+- Local development may still use an ephemeral secret when `NODE_ENV` is not `production`.
+- Added a regression test for the production guard and Render configuration.
 
 ## 4.60.0 — Sector Intelligence, Tactical Battle Reports & Balanced Starter Budget
 - Aligned the starter supply budget with the setup UI at 400 points; over-budget item selections are rejected and faction starter kits remain within budget.
@@ -105,3 +111,10 @@ Validation: 319 automated tests pass; `npm run check` passes; every JavaScript f
 - Direct map approaches to NPCs and points of interest ask before moving.
 - New-character setup offers start sectors controlled by the selected faction (including the faction headquarters). The server validates the selected spawn and falls back to the faction home if the requested sector is not allowed.
 - Added tests for route adjacency, Cordon → Dump → Bar, faction spawn validation and movement confirmations.
+
+
+## Deployment configuration
+
+- Set `ZONE_SESSION_SECRET` to a stable random value of at least 32 bytes. The Render Blueprint generates this value automatically; do not rotate it unless you intend to invalidate existing guest sessions.
+- Set `DATABASE_URL` to a persistent PostgreSQL database if player profiles and the shared world must survive server restarts. Without it, the server deliberately falls back to in-memory mode and saved server-side state is lost when the process restarts.
+- The `/health` endpoint reports `database: "memory-fallback"` when PostgreSQL is not connected.
