@@ -1,4 +1,6 @@
 /* ZONE ONLINE — isolated Zaton story campaign. Separate save; never touches faction-war progress. */
+// Fullscreen controls for the isolated story campaign. Called only from user gestures.
+window.toggleStoryFullscreen=async function(){try{if(document.fullscreenElement){await document.exitFullscreen();}else{await document.getElementById('storyModeScreen')?.requestFullscreen?.();}}catch(error){console.warn('Полноэкранный режим недоступен:',error);}};
 (function(){
  'use strict';
  const SAVE_KEY='zoneStorySave';
