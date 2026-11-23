@@ -1254,7 +1254,7 @@ body.reduce-background .title-atmosphere,body.reduce-background .title-grain,bod
   }
 }
 
-/* 4.58.0 — visible NPC firefights and clickable battle hotspots */
+/* 4.58.1 — visible NPC firefights and clickable battle hotspots */
 .zone-map .marker-in-combat .marker-dot{fill:#ff6b32;stroke:#ffe1a2;stroke-width:4;filter:drop-shadow(0 0 5px #ff4b16)}
 .zone-map .marker-in-combat .marker-pulse,.zone-map .battle-hotspot-pulse{fill:#ff5722;opacity:.34;animation:zoneBattlePulse 1.15s ease-out infinite}
 .zone-map .combat-flame,.zone-map .battle-hotspot-flame{font-size:20px;stroke:none;paint-order:normal;filter:drop-shadow(0 0 5px #ff6a22);animation:zoneFireFlicker .48s ease-in-out infinite alternate}
@@ -1270,3 +1270,13 @@ body.reduce-background .title-atmosphere,body.reduce-background .title-grain,bod
 @keyframes zoneFireFlicker{from{transform:translateY(1px) scale(.9);opacity:.75}to{transform:translateY(-3px) scale(1.12);opacity:1}}
 @keyframes zoneMuzzleFlash{0%,68%,100%{opacity:0}70%,78%{opacity:1}}
 @media(prefers-reduced-motion:reduce){.zone-map .marker-in-combat .marker-pulse,.zone-map .battle-hotspot-pulse,.zone-map .combat-flame,.zone-map .combat-muzzle-flash{animation:none}}
+
+/* 4.58.1 — replace cartoon fire combat markers with a restrained tactical insignia */
+.zone-map .combat-insignia-bg{fill:#3b2020;stroke:#e2a08c;stroke-width:1.4}
+.zone-map .combat-insignia{font-size:9px;fill:#fff0e8;stroke:none;text-anchor:middle;font-weight:700}
+.zone-map .marker-in-combat .marker-dot{fill:#b94c43;stroke:#f0c2a8;stroke-width:3}
+.zone-map .marker-in-combat .marker-pulse,.zone-map .battle-hotspot-pulse{fill:#a94c42;opacity:.24;animation:zoneBattlePulse 1.7s ease-out infinite}
+.zone-map .battle-hotspot-core{fill:#302426;stroke:#c98778;stroke-width:2.5}
+.zone-map .battle-hotspot-icon{fill:#f0d9d1}
+.zone-map .combat-flame,.zone-map .combat-muzzle-flash,.zone-map .battle-hotspot-flame{display:none!important}
+@media(prefers-reduced-motion:reduce){.zone-map .marker-in-combat .marker-pulse,.zone-map .battle-hotspot-pulse{animation:none!important}}
