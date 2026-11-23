@@ -1,5 +1,13 @@
 # ZONE ONLINE 4.60.0
 
+## Story mode prototype — Zaton
+- Added a separate Story Mode entry from the title menu. It does not replace or modify the existing faction-war campaign.
+- Added the supplied Zaton map as a story-only map asset, with clickable locations, points of interest, NPC markers and a player marker.
+- Added an original pre-Call of Pripyat story opening, an initial objective, six named loner/bandit NPCs, basic dialogue, inspection and approach interactions.
+- Story progress is stored independently under `zoneStorySave`; the existing `zoneExpandedSave` remains untouched.
+- This is the first playable narrative/map prototype. Full movement simulation, combat, inventory, quest chains and deeper A-Life behavior remain future work.
+
+
 ## 4.60.0 — Sector Intelligence, Tactical Battle Reports & Balanced Starter Budget
 - Aligned the starter supply budget with the setup UI at 400 points; over-budget item selections are rejected and faction starter kits remain within budget.
 - Clicking a sector on the full Zone map now opens an intelligence card with faction control, NPC and online-player counts, key points, anomalies, mutant groups, active battles and artifact signals. Travel requires an explicit route action.
