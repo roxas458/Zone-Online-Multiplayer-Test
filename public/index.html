@@ -1,13 +1,14 @@
 <!doctype html>
 <html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ZONE ONLINE 4.60.0 — MAIN MENU</title>
-<link rel="stylesheet" href="/css/game.css?v=4.60.0"></head><body>
+<link rel="stylesheet" href="/css/game.css?v=4.60.1"></head><body>
 <div class="title-screen" id="titleScreen" aria-label="Главное меню ZONE ONLINE">
   <div class="title-atmosphere"></div><div class="title-grain"></div>
   <div class="title-brand"><div><div class="title-name">ZONE <span>ONLINE</span></div><div class="title-tagline">ТЕРРИТОРИЯ ЗА ПЕРИМЕТРОМ</div></div></div>
   <section class="title-menu-panel" id="titleMenuPanel">
     <div class="title-panel-top"><span>ПОЛЕВОЙ ТЕРМИНАЛ</span><span class="title-live-dot">● СИГНАЛ ЕСТЬ</span></div>
     <div class="title-menu-actions">
-      <button class="title-action title-primary" id="titleContinue" onclick="continueZoneGame()"><span>Продолжить</span><small>Вернуться в Зону</small></button>
+      <button class="title-action title-primary" id="titleContinue" onclick="continueZoneGame()"><span>Война группировок</span><small>Продолжить существующую кампанию</small></button>
+      <button class="title-action" id="titleStory" onclick="ZoneStoryMode.open()"><span>Сюжетный режим</span><small>Новая история · Затон · 2011 год</small></button>
       <button class="title-action" onclick="beginNewZoneGame()"><span>Новая игра</span><small>Создать сталкера и выбрать группировку</small></button>
       <button class="title-action" onclick="openTitleOptions()"><span>Настройки</span><small>Интерфейс и параметры игры</small></button>
       <button class="title-action" onclick="showTitleCredits()"><span>Об игре</span><small>Информация о проекте и версия</small></button>
@@ -31,7 +32,8 @@
   </section>
   <div class="title-credit-pop" id="titleCredits" hidden><div class="title-credit-card"><button class="title-credit-close" onclick="hideTitleCredits()">×</button><div class="eyebrow">ПОЛЕВОЙ ТЕРМИНАЛ</div><h2>ZONE ONLINE</h2><p>Авторский браузерный симулятор жизни в Зоне. Исследуй локации, вступай в группировки, выполняй задания и взаимодействуй с другими сталкерами.</p><p class="muted small">Версия 4.60.0 · Независимый фанатский проект.</p><button onclick="hideTitleCredits()">Закрыть</button></div></div>
 </div>
-\n<div class="overlay setup-overlay" id="characterSetup"><div class="setup-terminal">
+\n<div id="storyModeScreen" class="story-mode-screen" hidden></div>
+<div class="overlay setup-overlay" id="characterSetup"><div class="setup-terminal">
   <div class="setup-terminal-head"><span>ZONE ONLINE / РЕГИСТРАЦИЯ НОВОГО СТАЛКЕРА</span><span class="setup-signal">● СИГНАЛ СТАБИЛЕН</span></div>
   <div class="setup-main-grid">
     <section class="setup-panel setup-person-panel"><div class="setup-panel-title">ПЕРСОНАЖ</div><div class="setup-person-preview"><div><b id="setupPreviewName">НОВЫЙ СТАЛКЕР</b><small id="setupPreviewFaction">Одиночки</small><small id="setupPreviewSpawn">Точка появления: Кордон</small></div></div>
@@ -170,4 +172,4 @@ window.loadZoneSocketClient = async function loadZoneSocketClient() {
 window.zoneSocketClientReady = window.loadZoneSocketClient();
 </script>
 <script src="/js/content.js?v=4.60.0"></script><script src="/js/stories.js?v=4.60.0"></script><script src="/js/survival.js?v=4.60.0"></script>
-<script src="/js/game.js?v=4.60.0" defer></script></body></html>
+<script src="/js/story-mode.js?v=1.0.0"></script><script src="/js/game.js?v=4.60.0" defer></script></body></html>
