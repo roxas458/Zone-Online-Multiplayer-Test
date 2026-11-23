@@ -1,3 +1,17 @@
+# ZONE ONLINE — STORY UPDATE: ПЛУТ / ЗАТОН
+
+## Story campaign updates
+- Replaced the protagonist identity everywhere in the story campaign with **Плут**. His legal name and age are unknown; no surname or secondary callsign is shown.
+- Replaced the former female medic with **Доктор «Шрам»**, a male former military medic at the loner camp.
+- Renamed the bandit toll collector **Шакал** and updated his description and dialogue.
+- Expanded the Zaton story roster with eight named loners and bandits: Сова, Барин, Макар «Ржавый», Юла, Горшок, Лесник and Оскар (plus the renamed specialist roles).
+- Added time-of-day-aware route variations for NPCs and occasional nearby NPC activity reports in the PDA log. This is a local story-mode simulation layer; it does not alter the multiplayer faction-war world.
+- Kept the story save isolated under `zoneStorySave`.
+
+Validation: `npm test` and `npm run check`.
+
+---
+
 # ZONE ONLINE 4.60.0
 
 ## Story mode prototype — Zaton

@@ -42,14 +42,14 @@ test('story movement controls have visible styling', () => {
 
 
 test('story campaign defines its own protagonist with a portrait and personal motivation', () => {
-  assert.match(js, /name:'Егор Волков',callsign:'Клин'/);
-  assert.match(js, /Бывший геолог/);
+  assert.match(js, /name:'Плут',age:null/);
+  assert.match(js, /Настоящее имя неизвестно/);
   assert.match(js, /пропавшего напарника/);
   assert.match(js, /story-hero-card/);
 });
 
 test('Zaton story campaign has an expanded named loner and bandit cast with distinct roles', () => {
-  for (const name of ['Сыч','Лера «Шина»','Фома «Крот»','Рыжий','Глухарь','Пахом','Тихий','Борода','Клык','Митя «Пластырь»','Зорька']) assert.ok(js.includes(name), `missing NPC ${name}`);
+  for (const name of ['Сыч','Доктор «Шрам»','Фома «Крот»','Рыжий','Глухарь','Пахом','Тихий','Борода','Шакал','Митя «Пластырь»','Зорька','Сова','Барин','Макар «Ржавый»','Юла','Горшок','Лесник','Оскар']) assert.ok(js.includes(name), `missing NPC ${name}`);
   assert.match(js, /Торговец/);
   assert.match(js, /Полевой медик/);
   assert.match(js, /Проводник/);
@@ -61,4 +61,23 @@ test('NPC patrols interpolate between route points and the story roster is visib
   assert.match(js, /const blend=\(state\.time%3\)\/3/);
   assert.match(js, /ИЗВЕСТНЫЕ В ОКРУГЕ · \$\{npcs\.length\} ЧЕЛОВЕК/);
   assert.match(css, /\.story-hero-card/);
+});
+
+
+test('4.62 story hero identity is only Plut and old medic/bandit names are gone', () => {
+  assert.match(js, /name:'Плут',age:null/);
+  assert.match(js, /Настоящее имя неизвестно/);
+  assert.match(js, /Доктор «Шрам»/);
+  assert.match(js, /Бывший военный фельдшер/);
+  assert.match(js, /name:'Шакал'/);
+  assert.doesNotMatch(js, /Егор Волков|Клин|Лера «Шина»|Клык/);
+  const ids = [...js.matchAll(/\{id:'([^']+)'/g)].map(m => m[1]);
+  assert.equal(new Set(ids).size, ids.length, 'story NPC and site IDs must be unique');
+});
+
+test('4.62 Zaton NPCs use time-of-day route variations and nearby activity reports', () => {
+  assert.match(js, /const phase=hour<6\?'night':hour<12\?'morning':hour<19\?'day':'evening'/);
+  assert.match(js, /function updateNpcLayer\(\)/);
+  assert.match(js, /dist\(state\.player,npcPosition\(n\)\)<7/);
+  assert.match(js, /Сова|Барин|Макар «Ржавый»|Юла|Горшок|Лесник|Оскар/);
 });
