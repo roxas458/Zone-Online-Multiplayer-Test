@@ -19,6 +19,7 @@ if (!process.env.ZONE_SESSION_SECRET) console.warn('[auth] ZONE_SESSION_SECRET i
 const { createMoveOrder, advanceMoveOrder } = require('./src/systems/player-orders');
 const { resolveSectorAtPosition } = require('./src/systems/sector-position');
 const { createExpedition, advanceExpedition, findRoute } = require('./src/systems/expedition');
+const { resolveFactionSpawn } = require('./src/systems/faction-spawns');
 const { initSharedWorld, initDiplomacy } = require('./src/server/world');
 const { WAR_CONFIG, createOperation, deploymentPower, addDeployment, resolveOperation } = require('./src/systems/war');
 const { tickNpcWorld, tickNpcMovement, tickNpcProximityCombat, interactWithNpc, isHostileFaction } = require('./src/systems/npc-ai');
@@ -111,7 +112,6 @@ io.engine.on('connection_error', error=>console.error(`[engine] connection_error
 const PORT = process.env.PORT || 3000;
 const SERVER_PROCESS_STARTED_AT = Date.now();
 const SECTOR_COORDS = Object.freeze({chaes:[503,104],zaton:[561,405],pripyat:[676,649],jupiter:[391,703],limansk:[128,838],red:[311,903],radar:[675,897],army:[502,1046],wild:[347,1212],bar:[441,1215],yantar:[174,1302],dump:[466,1470],agro:[243,1528],dark:[787,1418],cordon:[463,1753],swamps:[185,1788],darkhollow:[793,1742]});
-const SPAWN_BY_FACTION = Object.freeze({'Одиночки':'cordon','Долг':'bar','Свобода':'army','Бандиты':'dump','Военные':'agro','Учёные':'yantar','Наёмники':'limansk','Монолит':'radar','Чистое небо':'swamps'});
 app.use(express.json({limit:'64kb'}));
 app.use(express.static(path.join(__dirname, 'public')));
 app.get('/health', (_req,res) => { res.set('Access-Control-Allow-Origin','*'); res.set('Cache-Control','no-store'); res.status(200).json({ ok:true, service:'ZONE ONLINE', version:require('./package.json').version, database:dbReady?'postgres':'memory-fallback', databaseRequiredForAccounts:false, online:online.size, revision:world.revision||1, uptimeSeconds:Math.floor(process.uptime()), worldNpcCount:Object.keys(world.npcState||{}).length, timestamp:Date.now() }); });
@@ -346,7 +346,7 @@ io.on('connection', socket=>{
     s.state.survival.shelterUntil = Math.min(Math.max(0, Number(s.state.survival.shelterUntil) || 0), Date.now() + 10 * 60 * 1000);
     const previousLocation=p.location, previousFaction=p.faction; const squad=squadOf(id); const firstCharacter=!p.state?.characterCreated&&s.state?.characterCreated===true;
     if(p.state?.characterCreated&&!firstCharacter){s.state.faction=p.faction;s.faction=p.faction;}
-    const spawn=firstCharacter?(SPAWN_BY_FACTION[s.faction]||'cordon'):null;
+    const requestedSpawn=s.state?.startingLocation||s.state?.loc;const spawn=firstCharacter?resolveFactionSpawn(s.faction,requestedSpawn).location:null;
     if(firstCharacter){s.state.visitedLocations=[...new Set([...(s.state.visitedLocations||[]),spawn])];}
     const squadLocation=squad&&squad.leader!==id?squad.location:null;
     const authoritative=reconcilePlayerPosition(p,s.state,{firstCharacter,spawnLocation:spawn,spawnPoint:spawn?SECTOR_COORDS[spawn]||SECTOR_COORDS.cordon:null,squadLocation});

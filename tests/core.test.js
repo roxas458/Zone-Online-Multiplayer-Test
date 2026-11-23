@@ -354,11 +354,13 @@ test('4.31 guest-only mode removes account registration and login routes', () =>
 });
 test('4.21 new characters spawn at their faction home and faction chat is location-scoped', () => {
   const server = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'server.js'), 'utf8');
+  const spawnRules = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'src', 'systems', 'faction-spawns.js'), 'utf8');
   const client = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'public', 'js', 'game.js'), 'utf8');
-  for (const [faction,location] of Object.entries({'Чистое небо':'swamps','Одиночки':'cordon','Долг':'bar','Свобода':'army','Бандиты':'dump','Военные':'agro','Учёные':'yantar','Наёмники':'limansk','Монолит':'radar'})) {
-    assert.ok(server.includes(`'${faction}':'${location}'`));
+  for (const [faction,location] of Object.entries({'Чистое небо':'swamps','Одиночки':'cordon','Долг':'bar','Свобода':'army','Бандиты':'dump','Военные':'agro','Учёные':'yantar','Наёмники':'limansk','Монолит':'radar','Ренегаты':'darkhollow'})) {
+    assert.ok(spawnRules.includes(`'${faction}':'${location}'`));
     assert.ok(client.includes(`'${faction}':'${location}'`));
   }
+  assert.match(server, /resolveFactionSpawn\(s\.faction,requestedSpawn\)/);
   assert.match(server, /io\.to\(`location:\$\{p\.location\}`\)\.emit\('world:chat'/);
   assert.match(server, /socket\.join\(`location:\$\{p\.location\}`\)/);
   assert.match(client, /Локальный канал КПК/);

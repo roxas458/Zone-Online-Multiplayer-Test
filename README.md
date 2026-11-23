@@ -1,6 +1,6 @@
-# ZONE ONLINE 4.59.0
+# ZONE ONLINE 4.60.0
 
-## 4.59.0 — Sector Intelligence, Tactical Battle Reports & Balanced Starter Budget
+## 4.60.0 — Sector Intelligence, Tactical Battle Reports & Balanced Starter Budget
 - Aligned the starter supply budget with the setup UI at 400 points; over-budget item selections are rejected and faction starter kits remain within budget.
 - Clicking a sector on the full Zone map now opens an intelligence card with faction control, NPC and online-player counts, key points, anomalies, mutant groups, active battles and artifact signals. Travel requires an explicit route action.
 - NPC battle hotspots now show combatant names, factions, roles, health bars and casualty status, backed by persistent participant snapshots.
@@ -95,3 +95,13 @@ Validation: 319 automated tests pass; `npm run check` passes; every JavaScript f
 - Non-hostile cross-faction NPCs can have short road encounters and remember them; hostile relations and known rivalries are excluded.
 - NPCs can pass recent artifact discoveries as rumors during conversations.
 - Goods carried by visiting NPCs are delivered to trader stock. The server maps delivered goods into the existing NPC economy stock, so the items become available through the existing NPC trade flow rather than sitting in an unused side field.
+
+
+## 4.60.0 — Confirmed movement, connected sector travel & faction spawn choice
+
+- Clicking a free point on the local map now asks for confirmation before issuing a movement order.
+- Clicking a sector on the world map opens its information card; the travel action asks for confirmation and previews the intermediate sectors.
+- Inter-sector travel uses the same weighted route graph as the server. Each hop must follow a real gate; Cordon → Bar resolves through Dump rather than teleporting.
+- Direct map approaches to NPCs and points of interest ask before moving.
+- New-character setup offers start sectors controlled by the selected faction (including the faction headquarters). The server validates the selected spawn and falls back to the faction home if the requested sector is not allowed.
+- Added tests for route adjacency, Cordon → Dump → Bar, faction spawn validation and movement confirmations.
