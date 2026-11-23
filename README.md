@@ -113,3 +113,19 @@ Validation: 319 automated tests pass; `npm run check` passes; every JavaScript f
 - Direct map approaches to NPCs and points of interest ask before moving.
 - New-character setup offers start sectors controlled by the selected faction (including the faction headquarters). The server validates the selected spawn and falls back to the faction home if the requested sector is not allowed.
 - Added tests for route adjacency, Cordon → Dump → Bar, faction spawn validation and movement confirmations.
+
+## Story campaign update — Zaton living-world prototype
+
+The isolated Zaton story mode now supports click-to-move travel across the supplied map, animated player movement, a stop control, NPC patrol position updates, time-based ambient world events, and proximity-gated conversations/object inspections. Story progress remains stored under the dedicated `zoneStorySave` key and does not write faction-war save data.
+
+Verification: `node --test` — 365 tests passed, 0 failed. The story-mode JavaScript also passes `node --check`.
+
+
+## Story campaign update — Zaton Living World 1.2
+
+- Added the original playable protagonist Egor “Klin” Volkov, a 29-year-old former geologist searching for his missing partner.
+- Expanded the named Zaton story cast to 17 NPCs across the loner and bandit groups, including a trader, field medic, guide, radio operator, patrols, guards and newcomers.
+- NPCs interpolate between their patrol route points; the PDA roster displays their names, roles and affiliations.
+- Added a protagonist dossier panel and character portrait using the project's bundled portrait assets.
+- Kept the campaign save isolated under `zoneStorySave`; the faction-war campaign remains untouched.
+- Validation: `npm test` — 368 tests passed.
