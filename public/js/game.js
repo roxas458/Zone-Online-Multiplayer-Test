@@ -1,4 +1,4 @@
-// ZONE ONLINE 4.61.1 browser client. Modular core + compatibility facade. ZONE REPORTS / STARTER LOADOUT / SQUAD PAGE RESTORE.
+// ZONE ONLINE 4.61.2 browser client. Modular core + compatibility facade. ZONE REPORTS / STARTER LOADOUT / SQUAD PAGE RESTORE.
 const clone=o=>JSON.parse(JSON.stringify(o));
 const base=window.ZoneCoreDefaults;
 const QUICK_USE_SLOTS=[
@@ -1807,17 +1807,15 @@ async function connectZone(){
  }
  const sameOrigin=window.location.origin;
  let serverUrl=(localStorage.getItem('zoneServerUrl')||DEFAULT_ZONE_SERVER_URL).trim();
- if(serverUrl){
-  try{const parsed=new URL(serverUrl);if(!['http:','https:'].includes(parsed.protocol))throw new Error('Неподдерживаемый протокол');serverUrl=parsed.origin;}
-  catch(error){console.warn('Discarding invalid saved multiplayer server URL:',error.message);serverUrl=DEFAULT_ZONE_SERVER_URL;localStorage.setItem('zoneServerUrl',serverUrl);}
- }
+ try{serverUrl=window.ZoneNetwork.normalizeServerUrl(serverUrl,DEFAULT_ZONE_SERVER_URL);}
+ catch(error){console.warn('Discarding invalid saved multiplayer server URL:',error.message);serverUrl=window.ZoneNetwork.normalizeServerUrl(DEFAULT_ZONE_SERVER_URL);localStorage.setItem('zoneServerUrl',serverUrl);}
  // Do not start Engine.IO retries against a sleeping Render instance. Poll its
  // lightweight health endpoint first; this wakes Free services and starts Socket.IO
  // only after Express is listening. If CORS/network blocks the probe, fall back
  // to Socket.IO after a bounded wait instead of trapping the player here forever.
  const targetUrl=serverUrl||sameOrigin;
  // A second tap must not interrupt a healthy socket or an existing reconnect loop.
- if(zoneSocket && zoneSocketTarget===targetUrl && (zoneSocket.connected||zoneSocket.active)){
+ if(window.ZoneNetwork.canReuse(zoneSocket,zoneSocketTarget,targetUrl)){
   console.info('ZONE ONLINE: keeping existing Socket.IO connection', {connected:zoneSocket.connected, active:zoneSocket.active, target:targetUrl});
   return;
  }
@@ -1825,7 +1823,7 @@ async function connectZone(){
  await waitForMultiplayerHealth(targetUrl,connectAttempt,1800);
  if(connectAttempt!==zoneConnectAttempt)return;
  zonePlayerReady=false;
- if(zoneSocket){try{zoneSocket.removeAllListeners();zoneSocket.disconnect();}catch{}}
+ window.ZoneNetwork.dispose(zoneSocket);
  zoneSocketTarget=targetUrl;
  if(serverUrl && serverUrl!==sameOrigin){
   console.info('Using configured multiplayer server:',serverUrl);
@@ -1834,19 +1832,7 @@ async function connectZone(){
  try{
   // Prefer WebSocket, but allow Socket.IO to fall back to HTTP polling when a
   // proxy or client network blocks WebSocket upgrades.
-  zoneSocket=io(serverUrl||undefined,{
-   transports:['polling','websocket'],
-   tryAllTransports:true,
-   timeout:4500,
-   reconnection:true,
-   reconnectionAttempts:Infinity,
-   reconnectionDelay:500,
-   reconnectionDelayMax:2500,
-   randomizationFactor:0.25,
-   path:'/socket.io/',
-   autoConnect:false,
-   withCredentials:false
-  });
+  zoneSocket=window.ZoneNetwork.create(io,serverUrl);
  zoneSocket.on('connect',()=>{console.info('ZONE ONLINE: Socket.IO connected; sending player:hello', {at:new Date().toISOString(),socketId:zoneSocket.id, transport:zoneSocket.io.engine?.transport?.name, playerId:zonePlayerId||'(new guest)'});setOnlineConnectionState('connecting','Связь установлена. Сервер принял соединение, загружаем профиль…');const lastRevision=Number(localStorage.getItem('zoneWorldRevision')||0);zoneSocket.timeout(15000).emit('player:hello',{id:zonePlayerId,state:g,lastRevision,guest:true,sessionToken:localStorage.getItem('zoneGuestSessionToken')||''},(err,result)=>{if(err){setOnlineConnectionState('offline','Сервер установил соединение, но не подтвердил запрос входа. Проверь журналы Render и попробуй переподключиться.');console.error('ZONE ONLINE: player:hello acknowledgement timeout',err);return;}console.info('ZONE ONLINE: player:hello acknowledgement',result);if(!result?.ok){setOnlineConnectionState('offline',result?.message||'Сервер отклонил вход.');return;}if(result.sessionToken)localStorage.setItem('zoneGuestSessionToken',result.sessionToken);setOnlineConnectionState('connecting','Сервер подтвердил вход. Загружаем профиль и состояние Зоны…');if(zoneHelloReadyTimer)clearTimeout(zoneHelloReadyTimer);zoneHelloReadyTimer=setTimeout(()=>{if(zoneSocket?.connected)setOnlineConnectionState('offline','Сервер подтвердил вход, но не прислал профиль мира. Проверь ошибки player:hello в Render Logs.');},20000);});});
  zoneSocket.on('connect',()=>{
   const engine=zoneSocket?.io?.engine;

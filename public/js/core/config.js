@@ -2,7 +2,7 @@
 (function (global) {
   "use strict";
   global.ZoneCoreConfig = Object.freeze({
-    version: "4.61.1",
+    version: "4.61.2",
     saveKey: "zoneExpandedSave",
     saveMaxBytes: 5 * 1024 * 1024,
     localWorldPulseMs: 15 * 60 * 1000,
