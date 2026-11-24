@@ -470,9 +470,9 @@ test('4.25 field PDA keeps long-page filters and map controls reachable', () => 
 test('4.33 build labels are consistent', () => {
   const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  assert.equal(pkg.version, '4.61.3');
-  assert.match(html, /ZONE ONLINE 4\.61\.3/);
-  assert.match(html, /ZONE ONLINE · VER\. 4\.61\.3/);
+  assert.equal(pkg.version, '4.61.4');
+  assert.match(html, /ZONE ONLINE 4\.61\.4/);
+  assert.match(html, /ZONE ONLINE · VER\. 4\.61\.4/);
 });
 
 test('4.32 fieldwork, detector search, journal and map ecology layers are wired into the client', () => {
@@ -638,7 +638,7 @@ test('4.33 survival and expedition features are wired into the game and server',
   const client=fs.readFileSync(path.join(root,'public/js/game.js'),'utf8');
   const server=fs.readFileSync(path.join(root,'server.js'),'utf8');
   const data=fs.readFileSync(path.join(root,'src/shared/game-data.js'),'utf8');
-  assert.match(html,/survival\.js\?v=4\.61\.3/);
+  assert.match(html,/survival\.js\?v=4\.61\.4/);
   assert.match(html,/Подготовить рюкзак/);
   assert.match(html,/Охота на мутантов/);
   assert.match(client,/function tickSurvival\(/);

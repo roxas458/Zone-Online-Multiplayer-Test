@@ -15,7 +15,9 @@ test('4.58.1 starter weapon list exposes every server-supported starter firearm'
   assert.match(js,/for\(const row of weaponCatalogue\)/);
   assert.match(js,/STARTER_WEAPON_SERVER_IDS/);
   assert.match(js,/const STARTER_WEAPON_SERVER_IDS=new Set\(\[/);
-  assert.match(js,/let power=Math\.max\(8,Number\(item\.power\)\|\|12\)/);
+  assert.match(js,/function weaponPower\(item\)\{return window\.ZoneCombat\.weaponPower\(item\);\}/);
+  const combat=fs.readFileSync(path.join(root,'public/js/systems/combat.js'),'utf8');
+  assert.match(combat,/let power = Math\.max\(8, Number\(item\.power\) \|\| 12\)/);
   assert.match(js,/STARTER_WEAPON_OPTIONS=Object\.values\(STARTER_GEAR\)/);
   const supported=(js.match(/STARTER_WEAPON_SERVER_IDS=new Set\(\[([^\]]+)\]/)||[])[1];
   assert.ok(supported);

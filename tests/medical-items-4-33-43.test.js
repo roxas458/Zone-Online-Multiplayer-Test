@@ -12,5 +12,5 @@ test('4.33.43 client uses distinct effects for painkillers and trauma kit',()=>{
  const client=fs.readFileSync(path.join(root,'public/js/game.js'),'utf8');
  assert.match(client,/id===\"painkillers\"[\s\S]*?g\.stamina=Math\.min\(100,g\.stamina\+25\)/);
  assert.match(client,/id===\"trauma_kit\"[\s\S]*?g\.hp=Math\.min\(100,g\.hp\+55\)/);
- assert.match(client,/med\.id==='trauma_kit'\?50:med\.id==='bandage'\?12:32/);
+ assert.match(client,/ZoneCombat\.medicalHealing\(med\.id\)/);
 });

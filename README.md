@@ -1,6 +1,6 @@
-# ZONE ONLINE 4.61.3
+# ZONE ONLINE 4.61.4
 
-## 4.61.3 — Modular gameplay systems: inventory and economy
+## 4.61.4 — Modular gameplay systems: inventory and economy
 
 This release continues the incremental client modularization from 4.61.2.
 
@@ -25,3 +25,11 @@ This release continues the incremental client modularization from 4.61.2.
 - ZIP integrity — checked after packaging.
 
 This is an incremental migration, not the final removal of `game.js`. Combat, quests, survival, NPC behavior, map, and interface remain in their existing locations until each can be moved with focused compatibility tests.
+
+
+## 4.61.4 — Modular combat calculations
+
+- Extracted deterministic combat calculations into `public/js/systems/combat.js`: weapon power, encounter probability, XP-based enemy scaling, player attack damage, ally support damage, incoming damage mitigation, and medical-item healing values.
+- The existing game functions remain as compatibility/UI orchestration. Combat UI, rewards, death flow, equipment wear, and save behavior remain in the game layer.
+- Online NPC combat still sends actions to the server and applies server-returned state; this extraction does not move authority to the browser.
+- Added focused regression tests for the extracted formulas and script loading order.
