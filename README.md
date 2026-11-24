@@ -1,4 +1,34 @@
-# ZONE ONLINE 4.61.10
+# ZONE ONLINE 4.61.17
+
+### 4.61.17 — NPC AI modularization, phase 1
+- Extracted needs and sleep-cycle calculations into `npc-ai-needs.js`.
+- Extracted the per-NPC behavioral decision policy into `npc-ai-decisions.js`; the helper reports whether the original AI tick should continue with its post-decision bookkeeping, preserving the previous scheduling flow.
+- Extracted spatial movement and proximity combat into `npc-ai-movement.js`.
+- Extracted shared faction hostility rules into `npc-ai-factions.js`.
+- Extracted faction clashes, local skirmishes, battlefront resolution and convoy lifecycle into `npc-ai-conflicts.js`.
+- Reduced `npc-ai.js` from 29,566 bytes in 4.61.15 to 9,304 bytes by moving these responsibilities into dedicated modules. This is a substantial first phase, not a claim that the full AI architecture is finished: roster initialization, world orchestration and some life/mission lifecycle handling remain to be separated.
+- Includes the 4.61.16 keyed dynamic map entity reconciliation work.
+
+### 4.61.15 — Keyed NPC marker reconciliation
+
+- Split NPC and squad markers into their own SVG layer, separate from strategic points, mutants, anomalies, players, artifacts, and stashes.
+- Added keyed reconciliation by `data-npc-id`: unchanged NPC marker DOM nodes are retained; only added, removed, or changed NPC markers are inserted, removed, or replaced.
+- Squad overview markers use the squad leader NPC ID as their stable key; individual local-sector markers use each NPC ID.
+- This avoids rebuilding the entire NPC marker layer when a single stalker changes position or state. Other map marker categories keep their existing layer patch behavior.
+- No save format, server authority, Socket.IO event, NPC AI rule, movement rule, map coordinate, or route graph was changed.
+
+### 4.61.14 — Incremental SVG map layer updates
+
+- Added stable `data-map-layer` identities for the map background, sector regions, sector routes, selected routes, dynamic markers, and compass.
+- Added `ZoneMapRenderer.patchSvg()`: it preserves the existing SVG root and unchanged layer DOM nodes, updates only layers whose markup changed, and keeps the SVG root alive so pointer capture and map interactions are not reset on every render.
+- `renderZoneMap()` now patches the existing map instead of replacing the entire map container. The map entity card is preserved across map refreshes; the range legend is updated independently.
+- Added regression tests for layer identity, layer order, patch integration, and script loading.
+- No save format, server authority, Socket.IO event, NPC movement rule, map coordinate, or route graph was changed.
+
+### 4.61.13 — Batched NPC marker motion
+
+- Added `public/js/systems/map-motion.js` to coalesce multiple NPC marker transform updates into one animation frame and retain only the latest transform per NPC.
+- This is a movement-update optimization; it does not replace the complete map renderer. The 4.61.14 release adds the next layer of incremental rendering.
 
 
 ### 4.61.12 — Local map convoy filtering
