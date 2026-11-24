@@ -11,7 +11,7 @@ const ai=require('../src/systems/npc-ai');
 const source=fs.readFileSync(path.join(root,'src/systems/npc-ai.js'),'utf8');
 const tickSource=fs.readFileSync(path.join(root,'src/systems/npc-ai-world-tick.js'),'utf8');
 
-test('4.61.26 story NPC metadata and roster creation are owned by npc-ai-roster',()=>{
+test('4.61.31 story NPC metadata and roster creation are owned by npc-ai-roster',()=>{
   const entry=roster.createNpcRoster({sid:'cordon',wolf:'dump'},123).sid;
   assert.equal(entry.name,'Сидорович');
   assert.equal(entry.faction,'Одиночки');
@@ -21,7 +21,7 @@ test('4.61.26 story NPC metadata and roster creation are owned by npc-ai-roster'
   assert.doesNotMatch(source,/const NPC_DISPLAY\s*=|function createNpcRoster\(/);
 });
 
-test('4.61.26 NPC scheduling, action history and travel order helpers are isolated',()=>{
+test('4.61.31 NPC scheduling, action history and travel order helpers are isolated',()=>{
   assert.equal(typeof runtime.choose,'function');
   const npc={id:'helper',name:'Helper',location:'cordon',history:[]};
   runtime.scheduleNext(npc,1000,()=>0,2,2);
@@ -33,7 +33,7 @@ test('4.61.26 NPC scheduling, action history and travel order helpers are isolat
   assert.equal(npc.action,'travel');
 });
 
-test('4.61.26 lifecycle preparation preserves equipment defaults, dialogue cadence and dead NPC handling',()=>{
+test('4.61.31 lifecycle preparation preserves equipment defaults, dialogue cadence and dead NPC handling',()=>{
   const events=[];
   const npc={id:'lifecycle',name:'Lifecycle',role:'учёный',faction:'Учёные',location:'cordon',alive:true,health:140,morale:-5,supplies:120,needs:{hunger:0,thirst:0,fatigue:0,stress:0},lastNeedsAt:1000,dialogueCycle:-1};
   const args={world:{zoneEvents:[]},owners:{},events,now:1000,updateNpcNeeds(){},homeForFaction:()=> 'cordon',npcWorldPosition:()=>({x:10,y:20})};
@@ -51,7 +51,7 @@ test('4.61.26 lifecycle preparation preserves equipment defaults, dialogue caden
   assert.equal(dead.dialogue,undefined);
 });
 
-test('4.61.26 NPC AI coordinator delegates roster, runtime and lifecycle responsibilities',()=>{
+test('4.61.31 NPC AI coordinator delegates roster, runtime and lifecycle responsibilities',()=>{
   assert.match(source,/require\('\.\/npc-ai-roster'\)/);
   assert.match(tickSource,/require\('\.\/npc-ai-runtime'\)/);
   assert.match(tickSource,/require\('\.\/npc-ai-lifecycle'\)/);

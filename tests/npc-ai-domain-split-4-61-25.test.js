@@ -20,7 +20,7 @@ function unit(id, faction, overrides = {}) {
 
 const hostile = (a, b) => a !== b;
 
-test('4.61.26 conflict coordinator delegates to battle, convoy, and local skirmish domains in order', () => {
+test('4.61.31 conflict coordinator delegates to battle, convoy, and local skirmish domains in order', () => {
   const world = { npcState:{}, territoryOrders:{ expired:{ expiresAt:10 }, active:{ expiresAt:500 } }, territoryOwners:{}, battlefronts:[], convoys:[] };
   const events=[];
   conflicts.resolveNpcWorldConflicts({ world, owners:world.territoryOwners, events, now:100, random:()=>0, isHostileFaction:hostile });
@@ -29,7 +29,7 @@ test('4.61.26 conflict coordinator delegates to battle, convoy, and local skirmi
   assert.match(fs.readFileSync(path.join(root,'src/systems/npc-ai-conflicts.js'),'utf8'), /resolveFactionClashes\(context\)[\s\S]*tickNpcConvoys\(context\)[\s\S]*resolveLocalSkirmishes\(context\)/);
 });
 
-test('4.61.26 faction battle module preserves bounded battle participants and snapshots', () => {
+test('4.61.31 faction battle module preserves bounded battle participants and snapshots', () => {
   const a=unit('battle-a','Alpha'), b=unit('battle-b','Bravo');
   const world={npcState:{a,b},battlefronts:[],diplomacy:{}};
   const events=[];
@@ -40,7 +40,7 @@ test('4.61.26 faction battle module preserves bounded battle participants and sn
   assert.ok(events.some(event=>event.type==='npc_skirmish'));
 });
 
-test('4.61.26 convoy module owns creation, route progress, and event generation', () => {
+test('4.61.31 convoy module owns creation, route progress, and event generation', () => {
   const world={npcState:{},convoys:[]};
   const events=[];
   convoys.tickNpcConvoys({world,owners:{},events,now:2000,random:()=>0,isHostileFaction:hostile});
@@ -50,7 +50,7 @@ test('4.61.26 convoy module owns creation, route progress, and event generation'
   assert.ok(events.some(event=>event.type==='convoy_started'));
 });
 
-test('4.61.26 local skirmish module resolves nearby hostile encounters independently', () => {
+test('4.61.31 local skirmish module resolves nearby hostile encounters independently', () => {
   const a=unit('local-a','Alpha'), b=unit('local-b','Bravo');
   const world={npcState:{a,b},diplomacy:{}};
   const events=[];
@@ -60,7 +60,7 @@ test('4.61.26 local skirmish module resolves nearby hostile encounters independe
   assert.equal(b.action,'combat');
 });
 
-test('4.61.26 proximity combat is independently importable and movement keeps compatibility export', () => {
+test('4.61.31 proximity combat is independently importable and movement keeps compatibility export', () => {
   const a=unit('prox-a','Одиночки'), b=unit('prox-b','Бандиты');
   const events=proximityCombat.tickNpcProximityCombat({npcState:{a,b},diplomacy:{}},20000,()=>0);
   assert.equal(events.length,1);
@@ -69,7 +69,7 @@ test('4.61.26 proximity combat is independently importable and movement keeps co
   assert.equal(ai.tickNpcProximityCombat,proximityCombat.tickNpcProximityCombat);
 });
 
-test('4.61.26 ordinary activity policy is separated from decision scheduling', () => {
+test('4.61.31 ordinary activity policy is separated from decision scheduling', () => {
   const npc=unit('behavior','Одиночки',{squadType:'сбор припасов'});
   const events=[];
   behaviors.chooseNpcRoutineBehavior(npc,{world:{},owners:{},events,now:5000,random:()=>0,territoryAdjacency:{},canEnterTerritory:()=>true,moveNpc(){},scheduleNext(){},recordAction(){},choose:()=>null},0.1);
@@ -78,12 +78,12 @@ test('4.61.26 ordinary activity policy is separated from decision scheduling', (
   assert.equal(typeof decisions.decideNpcAction,'function');
 });
 
-test('4.61.26 package syntax checks include every extracted NPC AI domain', () => {
+test('4.61.31 package syntax checks include every extracted NPC AI domain', () => {
   const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
   for(const file of ['npc-ai-faction-battles.js','npc-ai-convoys.js','npc-ai-local-skirmishes.js','npc-ai-proximity-combat.js','npc-ai-behaviors.js']) assert.ok(pkg.scripts.check.includes(file),`${file} missing from npm run check`);
 });
 
-test('4.61.26 public NPC AI facade remains a small compatibility entry point', () => {
+test('4.61.31 public NPC AI facade remains a small compatibility entry point', () => {
   const source=fs.readFileSync(path.join(root,'src/systems/npc-ai.js'),'utf8');
   assert.ok(source.length < 1500, 'facade should not accumulate domain logic');
   assert.match(source, /npc-ai-world-tick/);

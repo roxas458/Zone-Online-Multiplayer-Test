@@ -10,7 +10,7 @@ test('4.61.10 NPC dialogue module loads before the browser client and replaces i
   const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
   const client = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
   assert.ok(html.indexOf('/js/systems/npc-dialogue.js') < html.indexOf('/js/game.js'));
-  assert.match(html, /npc-dialogue\.js\?v=4\.61\.26/);
+  assert.match(html, /npc-dialogue\.js\?v=4\.61\.31/);
   assert.match(client, /window\.ZoneNpcDialogue/);
   assert.doesNotMatch(client, /const SIGNATURE_DIALOGUES=/);
   assert.doesNotMatch(client, /function generatedNpcDialogue\(/);

@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const root=path.resolve(__dirname,'..');
-const js=fs.readFileSync(path.join(root,'public/js/game.js'),'utf8');
+const js=fs.readFileSync(path.join(root,'public/js/game.js'),'utf8')+fs.readFileSync(path.join(root,'public/js/systems/character-setup-data.js'),'utf8');
 const shared=fs.readFileSync(path.join(root,'src/shared/game-data.js'),'utf8');
 
 test('4.58.1 starter weapon list exposes every server-supported starter firearm',()=>{

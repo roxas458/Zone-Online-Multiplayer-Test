@@ -36,7 +36,7 @@ test('4.46 local and server expeditions record confirmed sector arrivals', () =>
 
 test('4.46 all first-party browser scripts use the release cache key', () => {
   for (const name of ['content.js', 'stories.js', 'survival.js', 'systems/encyclopedia.js', 'game.js']) {
-    assert.ok(html.includes(`/js/${name}?v=4.61.26`), `${name} cache key is stale or missing`);
+    assert.ok(html.includes(`/js/${name}?v=4.61.31`), `${name} cache key is stale or missing`);
   }
 });
 

@@ -36,7 +36,7 @@ test('4.61.10 browser delegates SVG region and layer composition to map renderer
   const html = fs.readFileSync(path.join(root,'public/index.html'),'utf8');
   const client = fs.readFileSync(path.join(root,'public/js/game.js'),'utf8');
   assert.ok(html.indexOf('/js/systems/map-renderer.js') < html.indexOf('/js/game.js'));
-  assert.match(html, /map-renderer\.js\?v=4\.61\.26/);
+  assert.match(html, /map-renderer\.js\?v=4\.61\.31/);
   assert.match(client, /const zoneMapRenderer=window\.ZoneMapRenderer/);
   assert.match(client, /function mapRegionMarkup\(\)\{return zoneMapRenderer\.renderRegions/);
   assert.match(client, /zoneMapRenderer\.renderSvg\(/);

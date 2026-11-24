@@ -1,3 +1,30 @@
+## 4.61.31 — Character profile and portrait selection modularization
+
+- Added `public/js/systems/character-setup-profile.js` for the character setup profile rules: the 16 shipped portrait choices, portrait filename validation, background validation, callsign/real-name/faction validation, and faction-owned spawn-point filtering/resolution.
+- Updated the character setup screen to delegate portrait cataloguing and validation, background selection validation, identity checks, and spawn eligibility to the new module.
+- The feature is a portrait picker, not a character appearance/customization system. Portrait images remain in `public/assets/portraits/`; the selected filename continues to be stored as `g.playerPortrait`.
+- Kept the existing DOM, modal visibility, preview rendering, save behavior, and legacy inline handler names in `game.js` for compatibility.
+- Added focused tests for all 16 actual portrait assets, invalid portrait rejection, identity validation, background fallback, faction spawn eligibility, and script loading order.
+
+## 4.61.30 — Inventory and equipment management modularization
+
+- Expanded `public/js/systems/inventory.js` from basic stack helpers into the inventory domain layer: item filtering/sorting, weight and backpack-capacity summaries, equipment-slot mapping, slot candidate selection, equip validation, and unequip rules.
+- Updated `public/js/game.js` to delegate inventory sorting/summary and equipment mutations to `ZoneInventory`, while keeping DOM rendering, alerts, persistence, and network synchronization in the compatibility client.
+- Preserved existing inventory data shape, equipment slot names, sorting choices, backpack default capacity, and primary/sidearm exclusion rules.
+- Added focused tests for filtering, sorting, weight/capacity calculations, equipment compatibility, and script integration.
+
+## 4.61.28 — Map interaction and expedition planning modularization
+
+- Extracted map pointer-drag gesture state, map click target resolution, sector selection decisions, and expedition preflight validation into `public/js/systems/map-interaction.js`.
+- Kept DOM access, confirmation prompts, network events, movement side effects, and local expedition timers in `public/js/game.js`; legacy global handlers remain compatible wrappers.
+- Added focused tests for drag thresholds/pointer identity, click resolution, local target clamping, route validation, squad leadership, stamina checks, and browser script order.
+
+## 4.61.27 — Character starter-loadout modularization
+
+- Extracted starter equipment selection, point-budget accounting, supply quantity limits, validation and reset rules into `public/js/systems/character-loadout.js`.
+- Kept DOM rendering and compatibility callbacks in `game.js`; UI now delegates loadout decisions to the dedicated system.
+- Added focused tests for budget rollback, slot validation, supply limits, reset behavior and browser script order.
+
 ## 4.61.26 — Browser encyclopedia and armory modularization
 
 - Extracted encyclopedia entry composition, search, article rendering, selection state, and category expansion into `public/js/systems/encyclopedia.js`.
@@ -31,7 +58,7 @@
 - Added focused tests for memory limits, relationship clamping, interaction history, and witnessed ally deaths.
 - `public/js/game.js` remains a separate modularization task.
 
-# ZONE ONLINE 4.61.26
+# ZONE ONLINE 4.61.31
 
 ### 4.61.23 — NPC tactical behavior modularization
 

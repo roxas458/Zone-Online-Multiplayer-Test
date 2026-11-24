@@ -9,7 +9,10 @@ const css = fs.readFileSync(path.join(root, 'public/css/game.css'), 'utf8');
 test('4.40 character setup is full-screen and includes a selectable portrait gallery', () => {
   assert.match(html, /id="setupPortraits"/);
   assert.match(js, /function chooseSetupPortrait/);
-  assert.match(js, /Array\.from\(\{length:16\}/);
+  const profile = fs.readFileSync(path.join(root, 'public/js/systems/character-setup-profile.js'), 'utf8');
+  assert.match(js, /characterSetupProfile\.createPortraitPicker\(/);
+  assert.match(profile, /const PORTRAIT_COUNT=16/);
+  assert.match(profile, /function isPortrait/);
   assert.match(css, /\.setup-overlay\{position:fixed!important;inset:0!important/);
   assert.match(css, /width:100vw!important;height:100dvh!important/);
 });

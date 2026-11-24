@@ -9,7 +9,7 @@ const projection = require('../src/systems/npc-ai-world-state');
 const tick = require('../src/systems/npc-ai-world-tick');
 const root = path.resolve(__dirname, '..');
 
-test('4.61.26 public npc-ai entry remains a stable facade over focused subsystems', () => {
+test('4.61.31 public npc-ai entry remains a stable facade over focused subsystems', () => {
   assert.equal(typeof ai.tickNpcWorld, 'function');
   assert.equal(ai.tickNpcWorld, tick.tickNpcWorld);
   assert.equal(typeof ai.createNpcRoster, 'function');
@@ -18,7 +18,7 @@ test('4.61.26 public npc-ai entry remains a stable facade over focused subsystem
   assert.match(facade, /npc-ai-world-tick/);
 });
 
-test('4.61.26 squad, life-routine and destination constraints are independently testable', () => {
+test('4.61.31 squad, life-routine and destination constraints are independently testable', () => {
   const npc = { id: 'n1', squadId: 's1', lifeRoutine: { type: 'camp' }, destinationPoint: { x: 1, y: 2 } };
   const world = { npcSquads: [{ id: 's1', status: 'travelling' }] };
   assert.equal(territory.shouldHoldNpcForSquad(npc, world), true);
@@ -28,7 +28,7 @@ test('4.61.26 squad, life-routine and destination constraints are independently 
   assert.equal(territory.shouldHoldNpcForSquad(npc, world), false);
 });
 
-test('4.61.26 territory safety sends an unassigned NPC back to a friendly sector', () => {
+test('4.61.31 territory safety sends an unassigned NPC back to a friendly sector', () => {
   const npc = { id: 'n2', faction: 'Alpha', location: 'hostile', alive: true };
   const events = [];
   let moved = null;
@@ -46,7 +46,7 @@ test('4.61.26 territory safety sends an unassigned NPC back to a friendly sector
   assert.equal(npc.duty, 'return_to_faction');
 });
 
-test('4.61.26 world projection owns NPC positions, faction base summaries and bounded event history', () => {
+test('4.61.31 world projection owns NPC positions, faction base summaries and bounded event history', () => {
   const world = {
     npcState: {
       a: { id: 'a', alive: true, location: 'home', faction: 'Alpha', guardPost: true, squadId: 's1' },
@@ -62,7 +62,7 @@ test('4.61.26 world projection owns NPC positions, faction base summaries and bo
   assert.deepEqual(world.npcEvents.at(-1), { type: 'new' });
 });
 
-test('4.61.26 NPC world tick still finalizes positions and records emitted events', () => {
+test('4.61.31 NPC world tick still finalizes positions and records emitted events', () => {
   const world = {
     npcState: {
       idle: { id: 'idle', name: 'Idle', faction: 'Alpha', role: 'сталкер', location: 'cordon', alive: true, action: 'camp', nextDecisionAt: 9999999999999, needs: { hunger: 0, thirst: 0, fatigue: 0, stress: 0 }, lastNeedsAt: 1000 }

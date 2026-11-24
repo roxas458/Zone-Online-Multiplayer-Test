@@ -39,5 +39,5 @@ test('4.61.15 browser loads the isolated map-motion module before game.js', () =
   assert.ok(html.indexOf('/js/systems/map-motion.js') < html.indexOf('/js/game.js'));
   assert.match(client, /window\.ZoneMapMotion\.createMotionBatcher\(\)/);
   assert.match(client, /zoneMapMotion\.schedule\(transforms/);
-  assert.match(html, /map-motion\.js\?v=4\.61\.26/);
+  assert.match(html, /map-motion\.js\?v=4\.61\.31/);
 });

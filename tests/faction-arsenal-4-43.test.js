@@ -15,7 +15,7 @@ test('4.43 adds a broad weapon catalogue without replacing existing entries', ()
 });
 
 test('4.43 faction armor variants are equippable starter items for the relevant groups', () => {
-  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
+  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8') + fs.readFileSync(path.join(root, 'public/js/systems/character-setup-data.js'), 'utf8');
   const ids = ['armor_duty_veteran','armor_duty_defender','armor_freedom_wind','armor_freedom_wanderer','armor_military_guard','armor_military_kordon','armor_merc_contract','armor_merc_blue','armor_clearsky_azure','armor_loner_mist','armor_monolith_acolyte','armor_bandit_collector','armor_renegade_marsh','armor_science_expedition'];
   for (const id of ids) {
     assert.match(game, new RegExp(id+":\\{id:'"+id+"',name:"));

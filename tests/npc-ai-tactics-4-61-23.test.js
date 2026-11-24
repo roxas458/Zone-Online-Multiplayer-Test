@@ -22,7 +22,7 @@ function tacticalContext(overrides = {}) {
   };
 }
 
-test('4.61.26 tactical threat search selects the nearest hostile in the same sector', () => {
+test('4.61.31 tactical threat search selects the nearest hostile in the same sector', () => {
   const npc = { id: 'scout', faction: 'Одиночки', location: 'cordon', x: 100, y: 100 };
   const near = { id: 'near', faction: 'Бандиты', location: 'cordon', x: 210, y: 100 };
   const far = { id: 'far', faction: 'Бандиты', location: 'cordon', x: 250, y: 100 };
@@ -32,7 +32,7 @@ test('4.61.26 tactical threat search selects the nearest hostile in the same sec
   assert.equal(result.distance, 110);
 });
 
-test('4.61.26 wounded NPC withdraws to a friendly sector after detecting a threat', () => {
+test('4.61.31 wounded NPC withdraws to a friendly sector after detecting a threat', () => {
   const npc = { id: 'wounded', name: 'Раненый', faction: 'Одиночки', location: 'bar', x: 400, y: 400, health: 20 };
   const enemy = { id: 'enemy', faction: 'Бандиты', location: 'bar', x: 500, y: 400, health: 100 };
   const { context, calls } = tacticalContext({ world: { npcState: { wounded: npc, enemy } }, nearestFriendlyLocation: () => 'cordon' });
@@ -43,7 +43,7 @@ test('4.61.26 wounded NPC withdraws to a friendly sector after detecting a threa
   assert.equal(context.events[0].type, 'npc_threat_detected');
 });
 
-test('4.61.26 healthy NPC takes cover away from the nearest hostile', () => {
+test('4.61.31 healthy NPC takes cover away from the nearest hostile', () => {
   const npc = { id: 'guard', name: 'Боец', faction: 'Долг', location: 'bar', x: 400, y: 400, health: 90 };
   const enemy = { id: 'enemy', faction: 'Бандиты', location: 'bar', x: 500, y: 400, health: 100 };
   const { context, calls } = tacticalContext({ world: { npcState: { guard: npc, enemy } } });
@@ -54,7 +54,7 @@ test('4.61.26 healthy NPC takes cover away from the nearest hostile', () => {
   assert.equal(calls.scheduled.length, 1);
 });
 
-test('4.61.26 reconnaissance decision records a report and guard policy assigns territory duty', () => {
+test('4.61.31 reconnaissance decision records a report and guard policy assigns territory duty', () => {
   const scout = { id: 'scout', name: 'Разведчик', location: 'cordon', squadType: 'разведка' };
   const { context } = tacticalContext();
   assert.equal(tactics.applyNpcTacticalDecision(scout, context, 0.1, 'special'), true);
@@ -69,7 +69,7 @@ test('4.61.26 reconnaissance decision records a report and guard policy assigns 
   assert.equal(guard.guardSector, 'cordon');
 });
 
-test('4.61.26 sector patrol creates a local destination or an authorized sector move', () => {
+test('4.61.31 sector patrol creates a local destination or an authorized sector move', () => {
   const npc = { id: 'patroller', faction: 'Одиночки', location: 'cordon' };
   const { context, calls } = tacticalContext({
     territoryAdjacency: { cordon: ['agro'] },
@@ -86,7 +86,7 @@ test('4.61.26 sector patrol creates a local destination or an authorized sector 
   assert.equal(npc.duty, 'sector_patrol');
 });
 
-test('4.61.26 world tick delegates threat response and package checks include tactical policy', () => {
+test('4.61.31 world tick delegates threat response and package checks include tactical policy', () => {
   const tick = fs.readFileSync(path.join(root, 'src/systems/npc-ai-world-tick.js'), 'utf8');
   const decisions = fs.readFileSync(path.join(root, 'src/systems/npc-ai-behaviors.js'), 'utf8');
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));

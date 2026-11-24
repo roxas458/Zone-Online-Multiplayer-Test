@@ -36,5 +36,5 @@ test('4.61.15 map renderer patches existing SVG layers instead of replacing the 
 test('4.61.15 browser loads the patched map renderer before game.js', () => {
   const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
   assert.ok(html.indexOf('/js/systems/map-renderer.js') < html.indexOf('/js/game.js'));
-  assert.match(html, /map-renderer\.js\?v=4\.61\.26/);
+  assert.match(html, /map-renderer\.js\?v=4\.61\.31/);
 });

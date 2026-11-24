@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'public/index.html'),'utf8');
-const js=fs.readFileSync(path.join(root,'public/js/game.js'),'utf8');
+const js=fs.readFileSync(path.join(root,'public/js/game.js'),'utf8')+fs.readFileSync(path.join(root,'public/js/systems/character-setup-data.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'public/css/game.css'),'utf8');
 
 test('4.38 has a dedicated Zone Reports tab and removes feeds from Contacts',()=>{

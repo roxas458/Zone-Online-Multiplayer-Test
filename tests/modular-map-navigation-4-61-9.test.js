@@ -58,11 +58,12 @@ test('4.61.10 map click helpers preserve nearest-sector selection and local move
 test('4.61.10 browser keeps legacy map entry points and loads navigation before game.js', () => {
   const html = fs.readFileSync(path.join(root,'public/index.html'),'utf8');
   const client = fs.readFileSync(path.join(root,'public/js/game.js'),'utf8');
+  const interaction = fs.readFileSync(path.join(root,'public/js/systems/map-interaction.js'),'utf8');
   assert.ok(html.indexOf('/js/systems/map-navigation.js') < html.indexOf('/js/game.js'));
-  assert.match(html,/map-navigation\.js\?v=4\.61\.26/);
+  assert.match(html,/map-navigation\.js\?v=4\.61\.31/);
   assert.match(client,/function localRoute\(from,to\)\{return zoneMapNavigation\.findLocalRoute/);
   assert.match(client,/function sectorCenter\(id\)\{return zoneMapNavigation\.sectorCenter/);
   assert.match(client,/function playerWorldPosition\(\)\{return zoneMapNavigation\.resolvePlayerPosition/);
   assert.match(client,/zoneMapNavigation\.computeViewport/);
-  assert.match(client,/zoneMapNavigation\.clampLocalTarget/);
+  assert.match(interaction,/nav\.clampLocalTarget/);
 });

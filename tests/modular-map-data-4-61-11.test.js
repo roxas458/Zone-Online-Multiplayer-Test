@@ -68,5 +68,5 @@ test('4.61.15 browser loads map data before map rendering and delegates preparat
   assert.ok(html.indexOf('/js/systems/map-data.js') < html.indexOf('/js/game.js'));
   assert.match(client, /const zoneMapData=window\.ZoneMapData/);
   assert.match(client, /zoneMapData\.prepareMapData\(/);
-  assert.match(html, /map-data\.js\?v=4\.61\.26/);
+  assert.match(html, /map-data\.js\?v=4\.61\.31/);
 });

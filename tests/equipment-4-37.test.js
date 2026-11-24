@@ -8,6 +8,7 @@ const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
 const css = fs.readFileSync(path.join(root, 'public/css/game.css'), 'utf8');
 const shared = fs.readFileSync(path.join(root, 'src/shared/game-data.js'), 'utf8');
 const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
+const inventory = fs.readFileSync(path.join(root, 'public/js/systems/inventory.js'), 'utf8');
 
 test('4.37 inventory exposes dedicated helmet, suit, detector, sidearm, artifact and backpack slots', () => {
   for (const slot of ['weapon', 'tool', 'helmet', 'suit', 'sidearm', 'artifact', 'backpack']) assert.match(html, new RegExp(`data-gear="${slot}"`));
@@ -18,13 +19,13 @@ test('4.37 equipment picker only offers items of the correct slot type and suppo
   assert.match(client, /function equipIntoSlot\(slot,id\)/);
   assert.match(client, /Подходящих предметов в рюкзаке нет/);
   assert.match(client, /function unequipSlot\(slot\)/);
-  assert.match(client, /"Шлем":"helmet"/);
-  assert.match(client, /"Рюкзак":"backpack"/);
+  assert.match(inventory, /"Шлем": "helmet"/);
+  assert.match(inventory, /"Рюкзак": "backpack"/);
 });
 
 test('4.37 helmets contribute protection and backpacks change carrying capacity', () => {
   assert.match(client, /helmet=g\.items\.find/);
-  assert.match(client, /Number\(pack\?\.capacity\)\|\|50/);
+  assert.match(inventory, /Number\(backpack\?\.capacity\) \|\| 50/);
   assert.match(client, /backpack_field/);
   assert.match(shared, /helmet_bulat/);
   assert.match(shared, /backpack_expedition/);

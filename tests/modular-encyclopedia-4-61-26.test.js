@@ -79,8 +79,8 @@ test('browser loads encyclopedia module before the compatibility client entry po
   const fs = require('node:fs');
   const path = require('node:path');
   const html = fs.readFileSync(path.join(__dirname, '../public/index.html'), 'utf8');
-  const moduleAt = html.indexOf('/js/systems/encyclopedia.js?v=4.61.26');
-  const gameAt = html.indexOf('/js/game.js?v=4.61.26');
+  const moduleAt = html.indexOf('/js/systems/encyclopedia.js?v=4.61.31');
+  const gameAt = html.indexOf('/js/game.js?v=4.61.31');
   assert.ok(moduleAt >= 0 && gameAt > moduleAt);
-  assert.match(html, /ZONE ONLINE · VER\. 4\.61\.26/);
+  assert.match(html, /ZONE ONLINE · VER\. 4\.61\.31/);
 });

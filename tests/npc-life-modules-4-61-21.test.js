@@ -14,7 +14,7 @@ function npc(id, overrides = {}) {
     relationships: {}, ...overrides };
 }
 
-test('4.61.26 A-Life planner assigns a deterministic local target and civilian travel state', () => {
+test('4.61.31 A-Life planner assigns a deterministic local target and civilian travel state', () => {
   const stalker = npc('planner', { nextLifeAt: 0 });
   const event = planNpcLifeRoutine(stalker, new Map([['cordon', [stalker]]]), now, () => 0.001);
   assert.equal(event.type, 'npc_life_departure');
@@ -23,7 +23,7 @@ test('4.61.26 A-Life planner assigns a deterministic local target and civilian t
   assert.equal(stalker.action, 'travel');
 });
 
-test('4.61.26 active routine executor handles arrival and starts activity timer', () => {
+test('4.61.31 active routine executor handles arrival and starts activity timer', () => {
   const stalker = npc('arrival', { lifeRoutine: { activity: 'rest', phase: 'outbound', target: { x: 500, y: 500 }, home: { x: 480, y: 480 } }, destinationPoint: { x: 500, y: 500 }, action: 'travel' });
   const events = advanceNpcLifeRoutine(stalker, now, () => 0.5, new Map([['cordon', [stalker]]]));
   assert.equal(stalker.lifeRoutine.phase, 'doing');
@@ -31,7 +31,7 @@ test('4.61.26 active routine executor handles arrival and starts activity timer'
   assert.equal(events[0].type, 'npc_life_arrival');
 });
 
-test('4.61.26 existing tickNpcLife facade preserves routine completion and social integration', () => {
+test('4.61.31 existing tickNpcLife facade preserves routine completion and social integration', () => {
   const stalker = npc('facade', { nextLifeAt: 0 });
   const world = { npcState: { facade: stalker } };
   const events = tickNpcLife(world, now, () => 0.001);
@@ -41,7 +41,7 @@ test('4.61.26 existing tickNpcLife facade preserves routine completion and socia
   assert.ok(ARTIFACTS.length >= 5);
 });
 
-test('4.61.26 npc-life entry is an orchestrator rather than containing planning and execution internals', () => {
+test('4.61.31 npc-life entry is an orchestrator rather than containing planning and execution internals', () => {
   const source = fs.readFileSync(path.join(__dirname, '../src/systems/npc-life.js'), 'utf8');
   assert.match(source, /require\('\.\/npc-life-planner'\)/);
   assert.match(source, /require\('\.\/npc-life-routines'\)/);

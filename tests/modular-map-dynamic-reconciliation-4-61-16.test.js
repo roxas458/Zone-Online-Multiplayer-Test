@@ -58,6 +58,6 @@ test('4.61.16 generic keyed reconciliation retains unchanged nodes and patches c
 
 test('4.61.16 browser cache keys and title are updated', () => {
   const html=fs.readFileSync(path.join(root,'public/index.html'),'utf8');
-  assert.match(html,/map-renderer\.js\?v=4\.61\.26/);
-  assert.match(html,/ZONE ONLINE 4\.61\.26/);
+  assert.match(html,/map-renderer\.js\?v=4\.61\.31/);
+  assert.match(html,/ZONE ONLINE 4\.61\.31/);
 });

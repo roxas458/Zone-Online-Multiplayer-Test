@@ -3,7 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const root=path.resolve(__dirname,'..');
-const game=fs.readFileSync(path.join(root,'public/js/game.js'),'utf8');
+const game=fs.readFileSync(path.join(root,'public/js/game.js'),'utf8')+fs.readFileSync(path.join(root,'public/js/systems/character-setup-data.js'),'utf8');
 const html=fs.readFileSync(path.join(root,'public/index.html'),'utf8');
 const ai=fs.readFileSync(path.join(root,'src/systems/npc-ai.js'),'utf8');
 const aiConflicts=fs.readFileSync(path.join(root,'src/systems/npc-ai-faction-battles.js'),'utf8');
@@ -14,7 +14,7 @@ test('4.59 starter budget matches every visible setup counter and blocks over-bu
  assert.match(game,/const STARTER_BUDGET=400/);
  assert.match(html,/setupPointsLeft[\s\S]*setupBudgetTotal/);
  assert.match(html,/setupBudgetMax/);
- assert.match(game,/if\(setupSpent\(\)>STARTER_BUDGET\)\{setupLoadout\[slot\]=previous/);
+ assert.match(game,/characterLoadoutSystem\.setSlot\(slot,id\)/);
  assert.match(game,/Недостаточно очков снабжения для этого припаса/);
  assert.match(game,/supplies:\['med','bread','bandage'\]/);
  assert.match(game,/g\.startingSupplyPoints=\{spent,budget:STARTER_BUDGET\}/);

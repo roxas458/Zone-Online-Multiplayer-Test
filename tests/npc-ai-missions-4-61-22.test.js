@@ -6,7 +6,7 @@ const path = require('node:path');
 const { processNpcMissionOrder } = require('../src/systems/npc-ai-missions');
 const root = path.resolve(__dirname, '..');
 
-test('4.61.26 mission order moves toward a reachable target and records the order cycle', () => {
+test('4.61.31 mission order moves toward a reachable target and records the order cycle', () => {
   const npc = { id: 'mission-a', faction: 'Долг', location: 'bar', missionOrder: { type: 'secure', target: 'wild' } };
   const calls = [];
   const handled = processNpcMissionOrder(npc, {
@@ -25,7 +25,7 @@ test('4.61.26 mission order moves toward a reachable target and records the orde
   assert.deepEqual(npc.missionOrder, { type: 'secure', target: 'wild' });
 });
 
-test('4.61.26 mission arrival completes the order and sets the requested duty', () => {
+test('4.61.31 mission arrival completes the order and sets the requested duty', () => {
   const npc = { id: 'mission-b', location: 'wild', action: 'travel', missionOrder: { type: 'recon', target: 'wild' } };
   let scheduled = false;
   const handled = processNpcMissionOrder(npc, {
@@ -41,7 +41,7 @@ test('4.61.26 mission arrival completes the order and sets the requested duty', 
   assert.equal(scheduled, true);
 });
 
-test('4.61.26 inaccessible mission targets cancel the order and trigger retreat', () => {
+test('4.61.31 inaccessible mission targets cancel the order and trigger retreat', () => {
   const npc = { id: 'mission-c', faction: 'Свобода', location: 'bar', missionOrder: { target: 'wild' } };
   const handled = processNpcMissionOrder(npc, {
     world: {}, owners: {}, events: [], now: 30_000, random: () => 0,
@@ -55,7 +55,7 @@ test('4.61.26 inaccessible mission targets cancel the order and trigger retreat'
   assert.equal(npc.behavior, 'retreat');
 });
 
-test('4.61.26 NPC decisions delegate mission handling and checks include the new module', () => {
+test('4.61.31 NPC decisions delegate mission handling and checks include the new module', () => {
   const decisions = fs.readFileSync(path.join(root, 'src/systems/npc-ai-decisions.js'), 'utf8');
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
   assert.match(decisions, /require\('\.\/npc-ai-missions'\)/);
