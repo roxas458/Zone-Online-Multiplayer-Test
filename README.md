@@ -1,4 +1,87 @@
-# ZONE ONLINE 4.61.17
+## 4.61.26 — Browser encyclopedia and armory modularization
+
+- Extracted encyclopedia entry composition, search, article rendering, selection state, and category expansion into `public/js/systems/encyclopedia.js`.
+- Moved the armory reference catalogue and rendering into the same focused browser module.
+- Kept legacy global entry points as thin compatibility wrappers in `public/js/game.js`.
+- Added `docs/CLIENT_ARCHITECTURE.md` with the current module boundaries and staged extraction plan.
+- Reduced `public/js/game.js` from 428,380 bytes to 410,250 bytes (18,130 bytes, about 4.2%) in this release.
+- Added isolated module tests and browser boot integration coverage.
+
+## 4.61.26 — Client encyclopedia modularization
+
+- Moved encyclopedia entry composition, selection state, search rendering and mode switching from `public/js/game.js` into `public/js/systems/encyclopedia.js`.
+- The module receives game state, content catalogs and DOM helpers through an explicit factory contract; the legacy global function names remain as compatibility wrappers.
+- Added focused tests for dynamic entry composition, search rendering and armory-mode delegation.
+- `public/js/game.js` reduced by approximately 13 KB in this step.
+
+### 4.61.25 — NPC AI domain separation and combat subsystem split
+
+- Split the former NPC conflict bundle into `npc-ai-faction-battles.js`, `npc-ai-convoys.js`, and `npc-ai-local-skirmishes.js`; `npc-ai-conflicts.js` now coordinates these systems while preserving simulation order.
+- Extracted short-range proximity combat into `npc-ai-proximity-combat.js`; `npc-ai-movement.js` remains responsible for movement and roaming while preserving its compatibility export.
+- Extracted ordinary NPC activity selection (sleep/rest, camp, squad duties, guard, and patrol) into `npc-ai-behaviors.js`; `npc-ai-decisions.js` now coordinates scheduling, mission orders, and routine behavior.
+- Preserved the public `npc-ai.js` API and existing server tick entry points. Added focused tests for the separated domain modules and retained the established simulation sequence. Added `docs/NPC_AI_ARCHITECTURE.md` with the module map and authoritative tick order.
+- This completes another major server-side NPC AI separation stage; it does not claim that the browser `public/js/game.js` has been split.
+
+### 4.61.25 — NPC memory and relationship history
+
+- Added `src/systems/npc-ai-memory.js` for bounded personal memories, pairwise relationship scores, encounter counts, and timestamps.
+- Social encounters, squad formation, and shared artifact rumours now update relationship history through one consistent API.
+- NPCs who knew a fallen squadmate or friend remember the killer and develop a strong negative relationship toward them.
+- Preserved the existing numeric `npc.relationships[id]` format while adding `relationshipHistory` metadata for richer future behavior.
+- Added focused tests for memory limits, relationship clamping, interaction history, and witnessed ally deaths.
+- `public/js/game.js` remains a separate modularization task.
+
+# ZONE ONLINE 4.61.26
+
+### 4.61.23 — NPC tactical behavior modularization
+
+- Extracted tactical decision rules into `src/systems/npc-ai-tactics.js`: threat detection, cover/withdrawal response, reconnaissance reports, territory guard posts, and local/sector patrol target selection.
+- Integrated threat response into the authoritative NPC world tick so NPCs can react to nearby hostile units before the proximity combat threshold; wounded NPCs withdraw toward friendly territory while healthier NPCs move away and seek cover.
+- Kept ordinary needs, mission orders, medical/scavenging/escort activities, and the public NPC AI facade in their existing modules.
+- Added focused tests for threat selection, retreat, cover movement, recon reporting, guard assignment, patrol targeting, and orchestration.
+- `public/js/game.js` remains a separate modularization task.
+
+
+### 4.61.22 — NPC mission-order handling extraction
+
+- Extracted explicit NPC mission-order processing into `src/systems/npc-ai-missions.js`: target arrival, route-step selection, territory access checks, mission travel, cancellation/retreat, and decision scheduling.
+- Kept `decideNpcAction()` as the behavioral decision entry point and delegated mission orders to the new focused module.
+- Preserved mission completion duty, mission travel reason, retreat behavior, and the 5–9 minute decision reschedule window.
+- Added direct tests for reachable missions, arrival completion, inaccessible targets, and delegation.
+- This is a server-side AI refactor; it does not complete the separate `public/js/game.js` modularization.
+
+
+### 4.61.21 — A-Life routine planning and execution split
+
+- Extracted civilian routine target selection and scheduling into `src/systems/npc-life-planner.js`.
+- Extracted active routine phases, arrivals, scavenging/trading/rest effects, and return-home handling into `src/systems/npc-life-routines.js`.
+- Added `src/systems/npc-life-constants.js` for shared activity constants and bounded numeric helpers.
+- Kept `tickNpcLife(world, now, random)` as a compatibility-preserving orchestrator; the public API, event aggregation, protected actions, social encounter integration, and world event history remain in place.
+- Added direct tests for planner/executor isolation and end-to-end facade behavior.
+- `public/js/game.js` remains a separate unfinished modularization task.
+
+### 4.61.20 — NPC social simulation extraction
+
+- Extracted social proximity encounters, relationship updates, artifact-rumour sharing, road encounters, and persistent friend-squad formation into `src/systems/npc-life-social.js`.
+- Added `src/systems/npc-life-utils.js` for deterministic local-goal seeding and bounded NPC memory updates shared by life and social systems.
+- Kept `tickNpcLife(world, now, random)` and its event aggregation behavior compatible; social events are appended to the same bounded `world.npcLifeEvents` history.
+- Added direct tests for independent social simulation, relationships, squad formation, and delegation from the life-routine module.
+- This is an incremental AI modularization step. `public/js/game.js` remains a large client entry point and is not yet fully split into modules.
+
+### 4.61.19 — NPC AI world orchestration modularization, phase 3
+
+- Split the NPC world tick into focused territory/squad constraints, world-state projection, and orchestration modules.
+- Kept `src/systems/npc-ai.js` as a stable public facade for existing server callers.
+- Added isolated tests for squad movement locks, life routines, territory retreats, faction-base summaries, bounded event history, and end-to-end NPC tick behavior.
+- No intended gameplay-rule changes; the refactor preserves the existing authoritative tick flow.
+
+### 4.61.18 — NPC AI lifecycle and roster modularization, phase 2
+- Moved story NPC faction/role/name metadata and initial roster creation into `src/systems/npc-ai-roster.js`; `npc-ai.js` keeps compatibility exports.
+- Moved shared decision scheduling, bounded action history, and travel-order creation into `src/systems/npc-ai-runtime.js`.
+- Extracted per-NPC tick preparation into `src/systems/npc-ai-lifecycle.js`: equipment defaults, dialogue refresh cadence, stat normalization, needs updates, home/base initialization, activity pacing, and initial coordinates.
+- Kept the world tick as the coordinator and preserved ordering: equipment defaults are applied before the alive check; dead NPCs do not receive dialogue/needs/lifecycle updates; active squad, life routine, mission, territory and decision checks remain in their original sequence.
+- `public/js/game.js` is not yet fully modularized; it remains a large browser entry point and needs a separate staged extraction plan.
+
 
 ### 4.61.17 — NPC AI modularization, phase 1
 - Extracted needs and sleep-cycle calculations into `npc-ai-needs.js`.
