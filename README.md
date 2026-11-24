@@ -1,5 +1,13 @@
 # ZONE ONLINE 4.61.10
 
+
+### 4.61.12 — Local map convoy filtering
+
+- Fixed map-data preparation so the local-sector map includes only moving or ambushed convoys belonging to the current sector. The Zone overview still includes active convoys across all sectors.
+- This removes unrelated convoy markers from local views and avoids generating/rendering out-of-sector convoy markup.
+- Added regression tests for local and Zone convoy scope, including preservation of the source arrays.
+- No save schema, network event, server authority, map coordinates, or movement behavior changed.
+
 ## 4.61.3 — Modular gameplay systems: inventory and economy
 
 This release continues the incremental client modularization from 4.61.2.
