@@ -6,6 +6,7 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
 const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
+const network = fs.readFileSync(path.join(root, 'public/js/core/network.js'), 'utf8');
 const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
 const render = fs.readFileSync(path.join(root, 'render.yaml'), 'utf8');
 
@@ -67,8 +68,8 @@ test('NPC dialogue generation is not repeated on every minute tick', () => {
 });
 
 test('multiplayer reconnect attempts use short bounded delays and login acknowledgements', () => {
-  assert.match(game, /timeout:4500/);
-  assert.match(game, /reconnectionDelayMax:2500/);
+  assert.match(network, /timeout: 4500/);
+  assert.match(network, /reconnectionDelayMax: 2500/);
   assert.match(game, /zoneSocket\.timeout\(15000\)\.emit\('player:hello'/);
 });
 

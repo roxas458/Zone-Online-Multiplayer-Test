@@ -21,7 +21,7 @@ test('map player markers are touch and keyboard friendly', () => {
 });
 test('desktop connection prefers polling before websocket upgrade with bounded health probe', () => {
   assert.match(js, /maxWaitMs=1800/);
-  assert.match(js, /transports:\['polling','websocket'\]/);
+  assert.match(fs.readFileSync(path.join(__dirname, '..', 'public/js/core/network.js'), 'utf8'), /polling.*websocket/);
 });
 
 test('self marker nearby panel includes NPC conversation-radius discovery', () => {

@@ -468,9 +468,9 @@ test('4.25 field PDA keeps long-page filters and map controls reachable', () => 
 test('4.33 build labels are consistent', () => {
   const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  assert.equal(pkg.version, '4.61.1');
-  assert.match(html, /ZONE ONLINE 4\.61\.1/);
-  assert.match(html, /ZONE ONLINE · VER\. 4\.61\.1/);
+  assert.equal(pkg.version, '4.61.2');
+  assert.match(html, /ZONE ONLINE 4\.61\.2/);
+  assert.match(html, /ZONE ONLINE · VER\. 4\.61\.2/);
 });
 
 test('4.32 fieldwork, detector search, journal and map ecology layers are wired into the client', () => {
@@ -488,12 +488,13 @@ test('4.32 fieldwork, detector search, journal and map ecology layers are wired 
 test('4.27 connection diagnostics support a separate server URL and health endpoint', () => {
   const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
   const client = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
+  const network = fs.readFileSync(path.join(root, 'public/js/core/network.js'), 'utf8');
   const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
   assert.match(html, /zone-online-multiplayer\.onrender\.com/);
   assert.match(client, /queryMatch=.*server=/);
   assert.match(client, /\/health/);
-  assert.match(client, /transports:\['polling','websocket'\]/);
-  assert.match(client, /tryAllTransports:true/);
+  assert.match(network, /transports: Object\.freeze\(\[\"polling\", \"websocket\"\]\)/);
+  assert.match(network, /tryAllTransports: true/);
   assert.match(client, /https:\/\/zone-online-multiplayer\.onrender\.com/);
   assert.match(client, /connect_error/);
   assert.match(server, /app\.get\('\/health'/);
@@ -504,14 +505,15 @@ test('4.27 connection diagnostics support a separate server URL and health endpo
 
 test('4.33.32 bounds Render health wait before Socket.IO and falls back after a bounded probe', () => {
   const client = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
+  const network = fs.readFileSync(path.join(root, 'public/js/core/network.js'), 'utf8');
   const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
   assert.match(client, /async function waitForMultiplayerHealth\(/);
   assert.match(client, /await waitForMultiplayerHealth\(targetUrl,connectAttempt,1800\)/);
   assert.match(client, /health preflight limit reached; trying Socket\.IO anyway/);
   assert.doesNotMatch(client, /localStorage\.removeItem\('zoneServerUrl'\);[\s\S]{0,180}Using the server that hosts this game/);
-  assert.match(client, /reconnectionAttempts:Infinity/);
-  assert.match(client, /reconnectionDelayMax:2500/);
-  assert.match(client, /timeout:4500/);
+  assert.match(network, /reconnectionAttempts: Infinity/);
+  assert.match(network, /reconnectionDelayMax: 2500/);
+  assert.match(network, /timeout: 4500/);
   assert.match(server, /transports: \['websocket','polling'\]/);
 });
 
@@ -526,7 +528,7 @@ test('4.27 login acknowledgement timeout accounts for Render cold starts', () =>
   const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8') +
     fs.readFileSync(path.join(root, 'public/js/core/default-state.js'), 'utf8');
   assert.match(game, /zoneSocket\.timeout\(15000\)\.emit\('player:hello'/);
-  assert.match(game, /timeout:4500,[\s\S]*reconnection:true/);
+  assert.match(fs.readFileSync(path.join(root, 'public/js/core/network.js'), 'utf8'), /timeout: 4500,[\s\S]*reconnection: true/);
   assert.match(game, /Сервер подтвердил вход, но не прислал профиль мира/);
 });
 
@@ -634,7 +636,7 @@ test('4.33 survival and expedition features are wired into the game and server',
   const client=fs.readFileSync(path.join(root,'public/js/game.js'),'utf8');
   const server=fs.readFileSync(path.join(root,'server.js'),'utf8');
   const data=fs.readFileSync(path.join(root,'src/shared/game-data.js'),'utf8');
-  assert.match(html,/survival\.js\?v=4\.61\.1/);
+  assert.match(html,/survival\.js\?v=4\.61\.2/);
   assert.match(html,/Подготовить рюкзак/);
   assert.match(html,/Охота на мутантов/);
   assert.match(client,/function tickSurvival\(/);
@@ -648,16 +650,16 @@ test('4.33 survival and expedition features are wired into the game and server',
 
 test('4.33.32 uses polling-first desktop connection with WebSocket upgrade and prevents duplicate reconnects', () => {
   const client = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
+  const network = fs.readFileSync(path.join(root, 'public/js/core/network.js'), 'utf8');
   const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
-  assert.match(client, /transports:\['polling','websocket'\]/);
-  assert.match(client, /tryAllTransports:true/);
+  assert.match(network, /transports: Object\.freeze\(\[\"polling\", \"websocket\"\]\)/);
+  assert.match(network, /tryAllTransports: true/);
   assert.match(client, /https:\/\/zone-online-multiplayer\.onrender\.com/);
-  assert.match(client, /randomizationFactor:0\.25/);
+  assert.match(network, /randomizationFactor: 0\.25/);
   assert.match(server, /transports: \['websocket','polling'\]/);
   assert.match(server, /transportMode:'websocket-first-with-polling-fallback'/);
   assert.match(client, /keeping existing Socket\.IO connection/);
-  assert.match(client, /zoneSocketTarget===targetUrl/);
-  assert.match(client, /zoneSocketTarget===targetUrl[\s\S]{0,240}return;/);
+  assert.match(client, /ZoneNetwork\.canReuse\(zoneSocket,zoneSocketTarget,targetUrl\)/);
   assert.match(client, /await waitForMultiplayerHealth[\s\S]{0,120}zonePlayerReady=false/);
   assert.match(server, /Publish the new owner before closing an older tab\/session/);
   assert.match(server, /oldSocket\.disconnect\(true\)/);

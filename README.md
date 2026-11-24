@@ -1,3 +1,12 @@
+# ZONE ONLINE 4.61.2
+
+## 4.61.2 — Modular network transport
+
+- Extracted Socket.IO URL validation, client creation options, connection reuse checks, and cleanup into `public/js/core/network.js`.
+- Kept game-specific Socket.IO event handlers and all existing event names in `game.js` to preserve server protocol compatibility.
+- Preserved polling/WebSocket fallback, infinite automatic reconnect, health preflight, guest authentication, and the existing Socket.IO path.
+- Added regression tests for URL safety, reuse rules, transport configuration, and cleanup.
+
 # ZONE ONLINE 4.61.1
 
 ## 4.61.1 — Modular client foundation

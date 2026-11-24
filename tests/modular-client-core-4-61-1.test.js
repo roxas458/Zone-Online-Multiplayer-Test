@@ -27,7 +27,7 @@ test('client core modules load before the compatibility client and declare a sha
   const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
   const paths = [
     '/js/core/config.js', '/js/core/event-bus.js', '/js/core/game-state.js',
-    '/js/core/save-manager.js', '/js/core/default-state.js', '/js/game.js'
+    '/js/core/save-manager.js', '/js/core/default-state.js', '/js/core/network.js', '/js/game.js'
   ];
   let previous = -1;
   for (const source of paths) {
@@ -35,7 +35,7 @@ test('client core modules load before the compatibility client and declare a sha
     assert.ok(position > previous, `${source} must load in dependency order`);
     previous = position;
   }
-  assert.ok(html.includes('ZONE ONLINE 4.61.1'));
+  assert.ok(html.includes('ZONE ONLINE 4.61.2'));
 });
 
 test('default game template is extracted without changing its canonical starting values', () => {

@@ -65,9 +65,9 @@ test('4.53.0 server-originated news and log text are escaped before insertion in
 
 test('4.53.0 build labels and browser cache keys match the package version', () => {
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  assert.equal(pkg.version, '4.61.1');
-  assert.ok(html.includes('ZONE ONLINE · VER. 4.61.1'));
+  assert.equal(pkg.version, '4.61.2');
+  assert.ok(html.includes('ZONE ONLINE · VER. 4.61.2'));
   for (const name of ['content.js', 'stories.js', 'survival.js', 'game.js']) {
-    assert.ok(html.includes(`/js/${name}?v=4.61.1`));
+    assert.ok(html.includes(`/js/${name}?v=4.61.2`));
   }
 });
