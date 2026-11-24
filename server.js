@@ -14,6 +14,7 @@ const { createGuestAuth } = require('./src/server/guest-auth');
 const { verifyLegacyProfileClaim } = require('./src/server/legacy-claim');
 const { createSocketRateLimiter } = require('./src/server/rate-limit');
 const ZoneSurvival = require('./public/js/survival.js');
+const ZoneQuests = require('./public/js/systems/quests.js');
 const { applyPlayerTrade } = require('./src/server/player-trade');
 const safeState = createSafeState(FACTIONS, LOCATIONS);
 const guestSessionSecret = process.env.ZONE_SESSION_SECRET || crypto.randomBytes(48).toString('hex');
@@ -408,13 +409,7 @@ io.on('connection', socket=>{
     const st=safeState(p.state).state;st.items=Array.isArray(st.items)?st.items:[];st.quests=Array.isArray(st.quests)?st.quests:[];
     const questId=String(input?.questId||'').slice(0,80),q=st.quests.find(x=>x.id===questId);
     if(!q||!q.accepted||q.done||(q.faction||'Одиночки')!==(p.faction||'Одиночки')){socket.emit('player:quest:result',{ok:false,message:'Задание не принято или уже завершено.'});return;}
-    const countItem=itemId=>st.items.filter(x=>x.id===itemId).reduce((n,x)=>n+Math.max(0,Number(x.qty)||0),0);
-    const hasPoint=(loc,point)=>!!st.keyPoints?.[loc]?.some(x=>x.id===point&&x.discovered);
-    const storyFlags=st.storyFlags||{},flags=st.flags||{};let ok=false;
-    const storyChecks={story_swamp_signal:()=>storyFlags.metLebedev&&hasPoint('swamps','swamps_extra_0'),story_swamp_relay:()=>storyFlags.metNovikov&&hasPoint('swamps','swamps_extra_3'),story_yantar_echo:()=>storyFlags.metSakharov&&hasPoint('yantar','yantar_extra_0'),story_north_route:()=>storyFlags.metBeard&&hasPoint('jupiter','jupiter_extra_3')&&hasPoint('radar','radar_extra_1'),story_pripyat_archive:()=>storyFlags.metArchivist&&hasPoint('pripyat','pripyat_extra_3')};
-    if(storyChecks[questId])ok=storyChecks[questId]();
-    if(q.requiredLocation){const required=q.requiredItemType?st.items.filter(x=>x.type===q.requiredItemType).reduce((n,x)=>n+Math.max(0,Number(x.qty)||0),0):countItem(q.requiredItem);ok=p.location===q.requiredLocation&&(!q.requiredItem&&!q.requiredItemType||required>=Math.max(1,Number(q.requiredQty)||1));}
-    if(questId==='intro')ok=!!flags.metWolf;if(questId==='scrap')ok=countItem('scrap')>=3;if(questId==='bread')ok=countItem('bread')>=2;if(questId==='rumors')ok=!!(flags.metWolf&&flags.heardBar&&flags.metScout&&flags.metProf);if(questId==='research')ok=!!flags.foundArtifact;
+    const ok=ZoneQuests.canComplete(st,q,p.location);
     if(!ok){socket.emit('player:quest:result',{ok:false,message:'Условия задания ещё не выполнены.'});return;}
     const consume=(itemId,amount)=>{let left=amount;for(const item of st.items.filter(x=>x.id===itemId)){const n=Math.min(left,Math.max(0,Number(item.qty)||0));item.qty-=n;left-=n;if(left<=0)break;}st.items=st.items.filter(x=>Number(x.qty)>0);};
     if(questId==='scrap')consume('scrap',3);if(questId==='bread')consume('bread',2);if(q.requiredItem)consume(q.requiredItem,Math.max(1,Number(q.requiredQty)||1));

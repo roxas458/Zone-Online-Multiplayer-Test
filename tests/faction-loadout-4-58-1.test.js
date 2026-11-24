@@ -38,7 +38,7 @@ test('4.58.1 quests are scoped to the selected faction and acceptance is guarded
 });
 
 test('4.58.1 faction quests have generic location and delivery requirements',()=>{
-  assert.match(js,/if\(q\.requiredLocation\)\{const requiredCount/);
+  assert.match(js,/ZoneQuests\.canComplete\(g,q,g\.loc\)/);
   assert.match(js,/if\(q\.requiredItem\)take\(q\.requiredItem/);
   assert.match(js,/requiredItemType:'Артефакт'/);
   assert.match(js,/storyQuestFactions/);

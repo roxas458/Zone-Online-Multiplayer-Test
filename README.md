@@ -1,4 +1,4 @@
-# ZONE ONLINE 4.61.4
+# ZONE ONLINE 4.61.5
 
 ## 4.61.4 — Modular gameplay systems: inventory and economy
 
@@ -33,3 +33,12 @@ This is an incremental migration, not the final removal of `game.js`. Combat, qu
 - The existing game functions remain as compatibility/UI orchestration. Combat UI, rewards, death flow, equipment wear, and save behavior remain in the game layer.
 - Online NPC combat still sends actions to the server and applies server-returned state; this extraction does not move authority to the browser.
 - Added focused regression tests for the extracted formulas and script loading order.
+
+
+## 4.61.5 — Modular quest rules
+
+- Extracted quest completion-condition evaluation into `public/js/systems/quests.js`.
+- Browser/offline and server/online flows now use the same conditions for story flags, discovered story points, legacy starter quests, location deliveries, and item-type deliveries.
+- Reward grants, quest state changes, item consumption, persistence, and online authority remain in their existing client/server handlers.
+- Existing server-side consumption of required item-type deliveries remains intact.
+- Added regression tests for quest condition parity and script load order.
