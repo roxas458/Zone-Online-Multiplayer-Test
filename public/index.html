@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ZONE ONLINE 4.61.26 — MAIN MENU</title>
-<link rel="stylesheet" href="/css/game.css?v=4.61.26"></head><body>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ZONE ONLINE 4.61.31 — MAIN MENU</title>
+<link rel="stylesheet" href="/css/game.css?v=4.61.31"></head><body>
 <div class="title-screen" id="titleScreen" aria-label="Главное меню ZONE ONLINE">
   <div class="title-atmosphere"></div><div class="title-grain"></div>
   <div class="title-brand"><div><div class="title-name">ZONE <span>ONLINE</span></div><div class="title-tagline">ТЕРРИТОРИЯ ЗА ПЕРИМЕТРОМ</div></div></div>
@@ -15,7 +15,7 @@
     <div class="title-panel-bottom"><span>ЗОНА АКТИВНА</span><span>НЕ ТЕРЯЙ БДИТЕЛЬНОСТЬ</span></div>
   </section>
   <div class="title-bottom-left"><span class="title-status-led"></span> СИСТЕМА КПК · ОФЛАЙН / ОНЛАЙН</div>
-  <div class="title-version">ZONE ONLINE · VER. 4.61.26</div>
+  <div class="title-version">ZONE ONLINE · VER. 4.61.31</div>
   <section class="title-options-panel" id="titleOptionsPanel" hidden aria-label="Настройки игры">
     <div class="title-panel-top"><span>ПОЛЕВОЙ ТЕРМИНАЛ / ПАРАМЕТРЫ</span><span>ЛИЧНЫЕ НАСТРОЙКИ</span></div>
     <h2>Настройки</h2>
@@ -29,7 +29,7 @@
     <label class="title-scale-row"><span><b>Масштаб интерфейса</b><small>Размер элементов и текста</small></span><select id="titleUiScale" class="field" onchange="setGameOption('uiScale',Number(this.value))"><option value="0.9">90%</option><option value="1">100%</option><option value="1.1">110%</option><option value="1.2">120%</option><option value="1.3">130%</option></select></label>
     <div class="title-options-actions"><button class="quiet-action" onclick="resetGameOptions()">По умолчанию</button><button class="title-action title-primary" onclick="closeTitleOptions()"><span>Назад в меню</span></button></div>
   </section>
-  <div class="title-credit-pop" id="titleCredits" hidden><div class="title-credit-card"><button class="title-credit-close" onclick="hideTitleCredits()">×</button><div class="eyebrow">ПОЛЕВОЙ ТЕРМИНАЛ</div><h2>ZONE ONLINE</h2><p>Авторский браузерный симулятор жизни в Зоне. Исследуй локации, вступай в группировки, выполняй задания и взаимодействуй с другими сталкерами.</p><p class="muted small">Версия 4.61.26 · Независимый фанатский проект.</p><button onclick="hideTitleCredits()">Закрыть</button></div></div>
+  <div class="title-credit-pop" id="titleCredits" hidden><div class="title-credit-card"><button class="title-credit-close" onclick="hideTitleCredits()">×</button><div class="eyebrow">ПОЛЕВОЙ ТЕРМИНАЛ</div><h2>ZONE ONLINE</h2><p>Авторский браузерный симулятор жизни в Зоне. Исследуй локации, вступай в группировки, выполняй задания и взаимодействуй с другими сталкерами.</p><p class="muted small">Версия 4.61.31 · Независимый фанатский проект.</p><button onclick="hideTitleCredits()">Закрыть</button></div></div>
 </div>
 \n<div class="overlay setup-overlay" id="characterSetup"><div class="setup-terminal">
   <div class="setup-terminal-head"><span>ZONE ONLINE / РЕГИСТРАЦИЯ НОВОГО СТАЛКЕРА</span><span class="setup-signal">● СИГНАЛ СТАБИЛЕН</span></div>
@@ -75,7 +75,7 @@
   </div>
 </section>
 <div class="quick-use-bar" id="quickUseBar" aria-label="Быстрое использование предметов"></div>
-<header class="zone-header"><div class="logo">S.T.A.L.K.E.R. // ZONE ONLINE<small>FIELD PDA · LIVING WORLD · BUILD 4.61.26</small></div><div class="header-actions"><button class="header-map-trigger" type="button" onclick="openZoneMapFullscreen()" aria-label="Открыть карту Зоны" title="Карта Зоны">▦ <span>КАРТА</span></button><button class="inventory-quick-trigger" type="button" onclick="view('inventory')" aria-label="Открыть инвентарь" title="Открыть рюкзак"><span class="backpack-icon" aria-hidden="true">🎒</span><span>РЮКЗАК</span></button><button class="fullscreen-trigger" type="button" onclick="toggleGameFullscreen()" aria-label="Переключить полноэкранный режим" title="Полноэкранный режим">⛶ <span>ЭКРАН</span></button><button class="main-menu-trigger" type="button" onclick="returnToTitleScreen()" aria-label="Вернуться в главное меню">☰ <span>МЕНЮ</span></button></div><div class="header-player-card"><div id="headerPlayerPortrait" class="header-player-portrait">♙</div><div class="header-player-details"><div class="header-player-copy"><b id="headerPlayerName">Сталкер</b><small id="headerPlayerFaction">Одиночки</small></div><div class="header-player-metrics"><span>₽ <b id="topMoney">—</b></span><span>◷ <b id="topDay">—</b></span><span>⌖ <b id="topLoc">—</b></span></div></div></div></header>
+<header class="zone-header"><div class="logo">S.T.A.L.K.E.R. // ZONE ONLINE<small>FIELD PDA · LIVING WORLD · BUILD 4.61.31</small></div><div class="header-actions"><button class="header-map-trigger" type="button" onclick="openZoneMapFullscreen()" aria-label="Открыть карту Зоны" title="Карта Зоны">▦ <span>КАРТА</span></button><button class="inventory-quick-trigger" type="button" onclick="view('inventory')" aria-label="Открыть инвентарь" title="Открыть рюкзак"><span class="backpack-icon" aria-hidden="true">🎒</span><span>РЮКЗАК</span></button><button class="fullscreen-trigger" type="button" onclick="toggleGameFullscreen()" aria-label="Переключить полноэкранный режим" title="Полноэкранный режим">⛶ <span>ЭКРАН</span></button><button class="main-menu-trigger" type="button" onclick="returnToTitleScreen()" aria-label="Вернуться в главное меню">☰ <span>МЕНЮ</span></button></div><div class="header-player-card"><div id="headerPlayerPortrait" class="header-player-portrait">♙</div><div class="header-player-details"><div class="header-player-copy"><b id="headerPlayerName">Сталкер</b><small id="headerPlayerFaction">Одиночки</small></div><div class="header-player-metrics"><span>₽ <b id="topMoney">—</b></span><span>◷ <b id="topDay">—</b></span><span>⌖ <b id="topLoc">—</b></span></div></div></div></header>
 <div class="mobile-dock" aria-label="Быстрая навигация">
 <button data-v="home"><span>⌂</span>Обзор</button><button data-v="people"><span>☻</span>Люди</button><button data-v="squads"><span>⚑</span>Отряды</button><button data-v="quests"><span>☷</span>Задания</button><button type="button" onclick="toggleMobileMenu()"><span>☰</span>Ещё</button>
 </div>
@@ -169,16 +169,19 @@ window.loadZoneSocketClient = async function loadZoneSocketClient() {
 };
 window.zoneSocketClientReady = window.loadZoneSocketClient();
 </script>
-<script src="/js/core/config.js?v=4.61.26"></script>
-<script src="/js/core/event-bus.js?v=4.61.26"></script>
-<script src="/js/core/game-state.js?v=4.61.26"></script>
-<script src="/js/core/save-manager.js?v=4.61.26"></script>
-<script src="/js/core/default-state.js?v=4.61.26"></script>
-<script src="/js/core/network.js?v=4.61.26"></script>
-<script src="/js/systems/inventory.js?v=4.61.26"></script>
-<script src="/js/systems/economy.js?v=4.61.26"></script>
-<script src="/js/systems/combat.js?v=4.61.26"></script>
-<script src="/js/systems/quests.js?v=4.61.26"></script><script src="/js/systems/npc-dialogue.js?v=4.61.26"></script><script src="/js/systems/map-navigation.js?v=4.61.26"></script><script src="/js/systems/map-data.js?v=4.61.26"></script><script src="/js/systems/map-renderer.js?v=4.61.26"></script><script src="/js/systems/map-motion.js?v=4.61.26"></script>
-<script src="/js/content.js?v=4.61.26"></script><script src="/js/stories.js?v=4.61.26"></script><script src="/js/survival.js?v=4.61.26"></script>
-<script src="/js/systems/encyclopedia.js?v=4.61.26"></script>
-<script src="/js/game.js?v=4.61.26" defer></script></body></html>
+<script src="/js/core/config.js?v=4.61.31"></script>
+<script src="/js/core/event-bus.js?v=4.61.31"></script>
+<script src="/js/core/game-state.js?v=4.61.31"></script>
+<script src="/js/core/save-manager.js?v=4.61.31"></script>
+<script src="/js/core/default-state.js?v=4.61.31"></script>
+<script src="/js/core/network.js?v=4.61.31"></script>
+<script src="/js/systems/inventory.js?v=4.61.31"></script>
+<script src="/js/systems/economy.js?v=4.61.31"></script>
+<script src="/js/systems/combat.js?v=4.61.31"></script>
+<script src="/js/systems/quests.js?v=4.61.31"></script><script src="/js/systems/npc-dialogue.js?v=4.61.31"></script><script src="/js/systems/map-navigation.js?v=4.61.31"></script><script src="/js/systems/map-interaction.js?v=4.61.31"></script><script src="/js/systems/map-data.js?v=4.61.31"></script><script src="/js/systems/map-renderer.js?v=4.61.31"></script><script src="/js/systems/map-motion.js?v=4.61.31"></script>
+<script src="/js/content.js?v=4.61.31"></script><script src="/js/stories.js?v=4.61.31"></script><script src="/js/survival.js?v=4.61.31"></script>
+<script src="/js/systems/encyclopedia.js?v=4.61.31"></script>
+<script src="/js/systems/character-loadout.js?v=4.61.31"></script>
+<script src="/js/systems/character-setup-data.js?v=4.61.31"></script>
+<script src="/js/systems/character-setup-profile.js?v=4.61.31"></script>
+<script src="/js/game.js?v=4.61.31" defer></script></body></html>

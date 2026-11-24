@@ -1,4 +1,4 @@
-// ZONE ONLINE 4.61.26 browser client. Modular systems + compatibility facade. ZONE REPORTS / STARTER LOADOUT / SQUAD PAGE RESTORE.
+// ZONE ONLINE 4.61.31 browser client. Modular systems + compatibility facade. ZONE REPORTS / STARTER LOADOUT / SQUAD PAGE RESTORE.
 const clone=o=>JSON.parse(JSON.stringify(o));
 const base=window.ZoneCoreDefaults;
 const QUICK_USE_SLOTS=[
@@ -712,28 +712,27 @@ function itemGlyph(x){
  return `<svg viewBox="0 0 60 56" width="42" height="40" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">${shapes[kind]}</svg>`;
 }
 function syncEquipmentSlot(slot){if(zoneSocket?.connected)zoneSocket.emit("player:equipment:update",{slot,itemName:g.equipment?.[slot]||""});}
-function gearSlotForItem(x){if(!x)return null;return ({"Оружие":"weapon","Броня":"suit","Детектор":"tool","Шлем":"helmet","Рюкзак":"backpack","Артефакт":"artifact"})[x.type]||null;}
-function equipItem(id){const x=g.items.find(i=>i.id===id);if(!x)return;const slot=gearSlotForItem(x);if(!slot)return alert("Этот предмет нельзя экипировать.");g.equipment[slot]=x.name;if(slot==="weapon"&&g.equipment.sidearm===x.name)g.equipment.sidearm="";if(slot==="sidearm"&&g.equipment.weapon===x.name)g.equipment.weapon="";log("Экипировано: "+x.name+" · "+({weapon:"основное оружие",suit:"броня",tool:"детектор",helmet:"шлем",backpack:"рюкзак",artifact:"артефакт"}[slot]));save();syncEquipmentSlot(slot);renderInventory();document.querySelector(".inventory-inspect")?.remove();}
-function openGearSlot(slot){const types={weapon:["Оружие"],sidearm:["Оружие"],suit:["Броня"],tool:["Детектор"],helmet:["Шлем"],backpack:["Рюкзак"],artifact:["Артефакт"]};const names=types[slot];if(!names)return;const list=g.items.filter(x=>names.includes(x.type)&&Number(x.qty)>0).filter(x=>slot!=="weapon"||x.name!==g.equipment.sidearm).filter(x=>slot!=="sidearm"||x.name!==g.equipment.weapon);const title=({weapon:"Основное оружие",sidearm:"Второе оружие",suit:"Бронекостюм",tool:"Детектор",helmet:"Шлем",backpack:"Рюкзак",artifact:"Артефакт"})[slot];const overlay=document.createElement("div");overlay.className="inventory-inspect gear-picker-overlay";overlay.innerHTML=`<section class="inventory-inspect-card gear-picker"><button class="inspect-close" onclick="this.closest('.inventory-inspect').remove()">×</button><small>СИСТЕМА ЭКИПИРОВКИ</small><h2>${title}</h2><p>Выбери предмет из рюкзака.</p><div class="gear-picker-list">${list.map(x=>`<button type="button" onclick="equipIntoSlot('${slot}','${x.id}')"><span>${itemGlyph(x)}</span><b>${escapeHtml(x.name)}</b><small>${escapeHtml(x.type)} · ${Number(x.weight||0).toFixed(1)} кг</small></button>`).join("")||'<div class="mutedbox">Подходящих предметов в рюкзаке нет.</div>'}</div><button class="quiet-action" onclick="unequipSlot('${slot}')">Снять предмет</button></section>`;overlay.addEventListener("click",e=>{if(e.target===overlay)overlay.remove()});document.body.append(overlay);}
-function equipIntoSlot(slot,id){const x=g.items.find(i=>i.id===id);if(!x)return;const mapped=gearSlotForItem(x);if(slot==="sidearm"){if(x.type!=="Оружие")return;g.equipment.sidearm=x.name;}else{if(mapped!==slot)return alert("Этот предмет не подходит для выбранного слота.");g.equipment[slot]=x.name;}log("Экипировано: "+x.name);save();syncEquipmentSlot(slot);renderInventory();document.querySelector(".gear-picker-overlay")?.remove();}
-function unequipSlot(slot){if(!g.equipment)return;g.equipment[slot]="";save();syncEquipmentSlot(slot);renderInventory();document.querySelector(".gear-picker-overlay")?.remove();}
+function gearSlotForItem(x){return window.ZoneInventory.slotForItem(x);}
+function equipItem(id){const x=g.items.find(i=>i.id===id);if(!x)return;const slot=gearSlotForItem(x);if(!slot)return alert("Этот предмет нельзя экипировать.");if(!window.ZoneInventory.equip(g.equipment,x,slot))return;log("Экипировано: "+x.name+" · "+({weapon:"основное оружие",suit:"броня",tool:"детектор",helmet:"шлем",backpack:"рюкзак",artifact:"артефакт"}[slot]));save();syncEquipmentSlot(slot);renderInventory();document.querySelector(".inventory-inspect")?.remove();}
+function openGearSlot(slot){const types={weapon:["Оружие"],sidearm:["Оружие"],suit:["Броня"],tool:["Детектор"],helmet:["Шлем"],backpack:["Рюкзак"],artifact:["Артефакт"]};const names=types[slot];if(!names)return;const list=window.ZoneInventory.itemsForSlot(g.items,slot,g.equipment);const title=({weapon:"Основное оружие",sidearm:"Второе оружие",suit:"Бронекостюм",tool:"Детектор",helmet:"Шлем",backpack:"Рюкзак",artifact:"Артефакт"})[slot];const overlay=document.createElement("div");overlay.className="inventory-inspect gear-picker-overlay";overlay.innerHTML=`<section class="inventory-inspect-card gear-picker"><button class="inspect-close" onclick="this.closest('.inventory-inspect').remove()">×</button><small>СИСТЕМА ЭКИПИРОВКИ</small><h2>${title}</h2><p>Выбери предмет из рюкзака.</p><div class="gear-picker-list">${list.map(x=>`<button type="button" onclick="equipIntoSlot('${slot}','${x.id}')"><span>${itemGlyph(x)}</span><b>${escapeHtml(x.name)}</b><small>${escapeHtml(x.type)} · ${Number(x.weight||0).toFixed(1)} кг</small></button>`).join("")||'<div class="mutedbox">Подходящих предметов в рюкзаке нет.</div>'}</div><button class="quiet-action" onclick="unequipSlot('${slot}')">Снять предмет</button></section>`;overlay.addEventListener("click",e=>{if(e.target===overlay)overlay.remove()});document.body.append(overlay);}
+function equipIntoSlot(slot,id){const x=g.items.find(i=>i.id===id);if(!x)return;if(!window.ZoneInventory.equip(g.equipment,x,slot))return alert("Этот предмет не подходит для выбранного слота.");log("Экипировано: "+x.name);save();syncEquipmentSlot(slot);renderInventory();document.querySelector(".gear-picker-overlay")?.remove();}
+function unequipSlot(slot){if(!window.ZoneInventory.unequip(g.equipment,slot))return;save();syncEquipmentSlot(slot);renderInventory();document.querySelector(".gear-picker-overlay")?.remove();}
 function rankForXpClient(xp){const ranks=[[0,'Новичок'],[50,'Опытный сталкер'],[150,'Следопыт'],[300,'Ветеран Зоны'],[600,'Легенда Зоны']];return ranks.filter(x=>Number(xp||0)>=x[0]).at(-1)?.[1]||'Новичок'}
 function renderInventory(){
  const query=($("invSearch")?.value||"").toLowerCase(),filter=$("invFilter")?.value||"all",sort=$("invSort")?.value||"name";
- let items=g.items.filter(x=>(filter==="all"||x.type===filter)&&x.name.toLowerCase().includes(query));
- items.sort((a,b)=>sort==="value"?b.value-a.value:sort==="weight"?b.weight-a.weight:sort==="type"?a.type.localeCompare(b.type,"ru"):a.name.localeCompare(b.name,"ru"));
+ const items=window.ZoneInventory.filterAndSort(g.items,{filter,query,sort});
  const equipped=x=>Object.values(g.equipment||{}).includes(x.name);
  const itemCard=x=>`<button class="backpack-item ${equipped(x)?'is-equipped':''}" onclick="inspectInventoryItem('${x.id}')" title="${escapeHtml(x.name)} · ${escapeHtml(x.type)}"><span class="backpack-qty">${x.qty>1?'×'+x.qty:''}</span><span class="backpack-art">${itemGlyph(x)}</span><span class="backpack-name">${escapeHtml(x.name)}</span>${x.condition!=null?`<span class="backpack-condition"><i style="width:${x.condition}%"></i></span>`:''}</button>`;
  const cells=items.map(itemCard);while(cells.length<48)cells.push('<div class="backpack-empty" aria-hidden="true"></div>');
  $("items").innerHTML=cells.join("")||'<div class="mutedbox">Рюкзак пуст.</div>';
- const weight=g.items.reduce((a,x)=>a+x.weight*x.qty,0),count=g.items.reduce((a,x)=>a+x.qty,0),pack=g.items.find(x=>x.name===g.equipment?.backpack&&x.type==='Рюкзак'),capacity=Number(pack?.capacity)||50;
+ const inventorySummary=window.ZoneInventory.summarize(g.items,g.equipment),{weight,quantity:count,capacity}=inventorySummary;
  $("weight").textContent=weight.toFixed(1)+" / "+capacity.toFixed(1)+" кг";$("itemCount").textContent=count;
  $("inventoryMoney").textContent=(g.money||0).toLocaleString('ru-RU')+' RU';
  $("inventoryOwner").textContent=playerDisplayName();$("gearCallsign").textContent=playerDisplayName().toUpperCase();$("inventoryRank").textContent=rankForXpClient(g.xp).toUpperCase();$("inventoryFaction").textContent=(g.faction||'ОДИНОЧКИ').toUpperCase();
  $("gearWeapon").textContent=g.equipment.weapon||'НЕ УСТАНОВЛЕНО';$("gearTool").textContent=g.equipment.tool||'НЕТ';$("gearSuit").textContent=(g.equipment.suit||'КОСТЮМ НЕ УСТАНОВЛЕН').toUpperCase();$("gearHelmet").textContent=g.equipment.helmet||'ПУСТО';$("gearBackpack").textContent=g.equipment.backpack||'СТАНДАРТНЫЙ';
  $("gearSidearm").textContent=g.equipment.sidearm||'ПУСТО';
  $("gearArtifact").textContent=g.equipment.artifact||'ПУСТО';
- $("gearLoadMeter").style.width=Math.min(100,weight/capacity*100)+'%';$("gearWeight").textContent=weight.toFixed(1)+' / '+capacity.toFixed(1)+' KG';
+ $("gearLoadMeter").style.width=inventorySummary.loadPercent+'%';$("gearWeight").textContent=weight.toFixed(1)+' / '+capacity.toFixed(1)+' KG';
  const suit=g.items.find(x=>x.name===g.equipment?.suit&&x.type==='Броня');
  const helmet=g.items.find(x=>x.name===g.equipment?.helmet&&x.type==='Шлем');
  const weapon=g.items.find(x=>x.name===g.equipment?.weapon&&x.type==='Оружие');
@@ -851,15 +850,16 @@ const zoneMapNavigation=window.ZoneMapNavigation;
 const zoneMapRenderer=window.ZoneMapRenderer;
 const zoneMapData=window.ZoneMapData;
 const zoneMapMotion=window.ZoneMapMotion.createMotionBatcher();
+const zoneMapInteraction=window.ZoneMapInteraction;
 const zoneSectorCoords=zoneMapNavigation.sectorCoords;
 const zoneLinks=zoneMapNavigation.sectorLinks;
 const MAP_REGIONS=zoneMapNavigation.mapRegions;
 function mapRegionMarkup(){return zoneMapRenderer.renderRegions(MAP_REGIONS,escapeHtml)}
 function currentMapView(){const me=playerWorldPosition(),frame=$('zoneMapFrame'),fullscreen=document.fullscreenElement===frame||frame?.classList.contains('map-fullscreen-fallback'),rect=$('zoneMap')?.getBoundingClientRect(),ratio=rect?.width&&rect?.height?rect.width/rect.height:16/9;return zoneMapNavigation.computeViewport({mode:zoneMapMode,zoom:zoneMapZoom,center:zoneMapCenter,player:me,fullscreen,aspectRatio:ratio})}
 function mapZoom(step){const v=currentMapView();zoneMapCenter={x:v.x+v.w/2,y:v.y+v.h/2};const full=typeof document!=='undefined'&&(document.fullscreenElement===$('zoneMapFrame')||$('zoneMapFrame')?.classList.contains('map-fullscreen-fallback'));zoneMapZoom=step===0?1:Math.max(full?1:.25,Math.min(24,zoneMapZoom*(step>0?1.35:1/1.35)));zoneMapDirty=true;renderZoneMap()}
-function mapPointerDown(ev){if(ev.button!==undefined&&ev.button!==0)return;if(ev.target?.closest?.('.world-marker,.map-region,.map-sector,.map-entity-card'))return;const svg=$('zoneMapSvg');if(!svg)return;const v=currentMapView();zoneMapPointer={id:ev.pointerId,x:ev.clientX,y:ev.clientY,lastX:ev.clientX,lastY:ev.clientY,moved:false,view:v};svg.setPointerCapture?.(ev.pointerId);}
-function mapPointerMove(ev){const d=zoneMapPointer;if(!d||d.id!==ev.pointerId)return;const dx=ev.clientX-d.lastX,dy=ev.clientY-d.lastY;if(Math.hypot(ev.clientX-d.x,ev.clientY-d.y)>5)d.moved=true;if(d.moved){const el=$('zoneMapSvg'),r=el?.getBoundingClientRect();if(r){zoneMapCenter={x:d.view.x+d.view.w/2-(ev.clientX-d.x)*d.view.w/r.width,y:d.view.y+d.view.h/2-(ev.clientY-d.y)*d.view.h/r.height};const v=currentMapView();el.setAttribute('viewBox',`${v.x} ${v.y} ${v.w} ${v.h}`);}}d.lastX=ev.clientX;d.lastY=ev.clientY;}
-function mapPointerUp(ev){const d=zoneMapPointer;if(!d||d.id!==ev.pointerId)return;zoneMapPointer=null;if(d.moved){zoneMapSuppressClick=true;setTimeout(()=>zoneMapSuppressClick=false,0);const v=currentMapView();const coords=$('mapCoordinates');if(coords)coords.textContent=`${zoneMapMode==='zone'?'ВСЯ ЗОНА':'ЛОКАЦИЯ: '+(here()?.name||'—')} · ${Math.round(zoneMapZoom*100)}% · ОБЗОР КАРТЫ`;return;}mapPointer(ev);}
+function mapPointerDown(ev){if(ev.target?.closest?.('.world-marker,.map-region,.map-sector,.map-entity-card'))return;const svg=$('zoneMapSvg');if(!svg)return;zoneMapPointer=zoneMapInteraction.beginPointerDrag(ev,currentMapView());if(zoneMapPointer)svg.setPointerCapture?.(ev.pointerId);}
+function mapPointerMove(ev){const d=zoneMapPointer;if(!d)return;const el=$('zoneMapSvg'),r=el?.getBoundingClientRect(),result=zoneMapInteraction.movePointerDrag(d,ev,r);if(!result.matched)return;zoneMapPointer=result.state;if(result.center){zoneMapCenter=result.center;const v=currentMapView();el.setAttribute('viewBox',`${v.x} ${v.y} ${v.w} ${v.h}`);}}
+function mapPointerUp(ev){const result=zoneMapInteraction.finishPointerDrag(zoneMapPointer,ev);if(!result.matched)return;zoneMapPointer=null;if(result.moved){zoneMapSuppressClick=true;setTimeout(()=>zoneMapSuppressClick=false,0);const coords=$('mapCoordinates');if(coords)coords.textContent=`${zoneMapMode==='zone'?'ВСЯ ЗОНА':'ЛОКАЦИЯ: '+(here()?.name||'—')} · ${Math.round(zoneMapZoom*100)}% · ОБЗОР КАРТЫ`;return;}mapPointer(ev);}
 function toggleMapFullscreen(force=false){const frame=$('zoneMapFrame');if(!frame)return;if(document.fullscreenElement===frame||frame.classList.contains('map-fullscreen-fallback')){if(force)return;const exit=document.exitFullscreen?.();exit?.catch?.(error=>console.warn('Не удалось закрыть полноэкранную карту:',error));frame.classList.remove('map-fullscreen-fallback');zoneMapDirty=true;return;}if(frame.requestFullscreen){frame.requestFullscreen().then(()=>{frame.classList.remove('map-fullscreen-fallback');zoneMapDirty=true;renderZoneMap();}).catch(()=>{frame.classList.add('map-fullscreen-fallback');zoneMapDirty=true;renderZoneMap();});}else{frame.classList.add('map-fullscreen-fallback');zoneMapDirty=true;renderZoneMap();}}
 function openZoneMapFullscreen(){view('world');zoneMapMode='zone';zoneMapZoom=1;zoneMapCenter={x:500,y:1000};zoneMapDirty=true;renderZoneMap();toggleMapFullscreen(true);}
 document.addEventListener('fullscreenchange',()=>{if(document.fullscreenElement!==$('zoneMapFrame'))restoreNpcDialogueOverlay();zoneMapDirty=true;requestAnimationFrame(()=>{if($('world')?.classList.contains('active'))renderZoneMap();});});
@@ -1103,8 +1103,11 @@ function updatePlayerMapMarker(){
  if(svg&&!zoneMapCenter){const v=currentMapView();svg.setAttribute('viewBox',`${v.x} ${v.y} ${v.w} ${v.h}`);}
  const coords=$('mapCoordinates');if(coords)coords.textContent=`${zoneMapMode==='zone'?'ВСЯ ЗОНА':'ЛОКАЦИЯ: '+(here()?.name||'—')} · ${Math.round(zoneMapZoom*100)}% · X ${Math.round(p.x)} / Y ${Math.round(p.y)}`;
 }
-function mapPointer(ev){if(zoneMapSuppressClick||ev.target?.closest?.('.world-marker,.map-sector,.map-region'))return;const svg=$('zoneMapSvg');if(!svg)return;const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse()),x=Math.max(8,Math.min(992,p.x)),y=Math.max(8,Math.min(1992,p.y));if(zoneMapMode==='zone'){const nearest=zoneMapNavigation.nearestSector(x,y);if(nearest&&nearest.id!==g.loc){handleMapSectorSelect(nearest.id);return;}}const target=zoneMapNavigation.clampLocalTarget(x,y,g.loc,245);if(Math.hypot(playerWorldPosition().x-target.x,playerWorldPosition().y-target.y)<5)return;if(!confirm('Отправиться к выбранной точке на карте?'))return;pendingSectorExit=null;playerMoveTarget=target;walkTarget=target;zoneMapCenter=null;zoneMapDirty=true;renderZoneMap();if(zoneSocket?.connected){zoneSocket.emit('player:move-order',{x:target.x,y:target.y,location:g.loc});updateMoveOrderStatus('Приказ отправлен серверу…');}else{startWalking();updateMoveOrderStatus('Локальный режим: движение без синхронизации сервера');}}
-function startExpedition(){if(pendingKeyPointApproach&&!preservePendingKeyPointApproach)pendingKeyPointApproach=null;preservePendingKeyPointApproach=false;const destination=$('expeditionDestination')?.value,mode=$('expeditionMode')?.value||'safe';if(!destination){updateMoveOrderStatus('Выбери пункт назначения');return;}if(destination===g.loc){updateMoveOrderStatus('Ты уже находишься в этом секторе');return;}if(activePlayerSquad&&activePlayerSquad.leader!==zonePlayerId)return alert('Маршрутом отряда управляет командир.');const path=localRoute(g.loc,destination,mode);if(!path)return alert('Маршрут между этими секторами не найден. Нельзя перескочить через отсутствующие переходы.');const routeNames=path.map(locationName).join(' → ');if(!confirm(`Проложен маршрут:\n${routeNames}\n\nПромежуточные сектора придётся пройти по порядку. Идём туда?`))return;if(g.stamina<(path.length-1)*5)return alert('Недостаточно выносливости для такого перехода.');if(zoneSocket?.connected){zoneSocket.emit('player:expedition-order',{destination,mode});updateMoveOrderStatus('КПК рассчитывает маршрут…');return;}const now=Date.now();/* nextHopAt=Date.now()+25000 keeps the local hop timer aligned with the route animation. */g.expedition={from:g.loc,to:destination,path,index:0,status:'travelling',mode,startedAt:now,nextHopAt:now+25000};save();startExpeditionVisual();updateMoveOrderStatus(`В пути: ${locationName(g.loc)} → ${locationName(path[1])}. Следующий переход примерно через 25 секунд.`);if(!localExpeditionTimer)localExpeditionTimer=setInterval(advanceLocalExpedition,1000);renderMap();renderZoneMap();} 
+function mapPointer(ev){if(zoneMapSuppressClick||ev.target?.closest?.('.world-marker,.map-sector,.map-region'))return;const svg=$('zoneMapSvg');if(!svg)return;const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;const p=pt.matrixTransform(svg.getScreenCTM().inverse()),decision=zoneMapInteraction.resolveMapClick({x:p.x,y:p.y,mode:zoneMapMode,currentLocation:g.loc,playerPosition:playerWorldPosition(),localOffset:245,deadZone:5});if(decision.type==='sector'){handleMapSectorSelect(decision.sectorId);return;}if(decision.type!=='move')return;const target=decision.target;if(!confirm('Отправиться к выбранной точке на карте?'))return;pendingSectorExit=null;playerMoveTarget=target;walkTarget=target;zoneMapCenter=null;zoneMapDirty=true;renderZoneMap();if(zoneSocket?.connected){zoneSocket.emit('player:move-order',{x:target.x,y:target.y,location:g.loc});updateMoveOrderStatus('Приказ отправлен серверу…');}else{startWalking();updateMoveOrderStatus('Локальный режим: движение без синхронизации сервера');}}
+function startExpedition(){if(pendingKeyPointApproach&&!preservePendingKeyPointApproach)pendingKeyPointApproach=null;preservePendingKeyPointApproach=false;const destination=$('expeditionDestination')?.value,mode=$('expeditionMode')?.value||'safe',plan=zoneMapInteraction.planExpedition({from:g.loc,to:destination,mode,stamina:Number(g.stamina)||0,squadActive:!!activePlayerSquad,isSquadLeader:!activePlayerSquad||activePlayerSquad.leader===zonePlayerId});if(!plan.ok){if(plan.reason==='missing-destination')return updateMoveOrderStatus('Выбери пункт назначения');if(plan.reason==='already-there')return updateMoveOrderStatus('Ты уже находишься в этом секторе');if(plan.reason==='not-squad-leader')return alert('Маршрутом отряда управляет командир.');if(plan.reason==='no-route')return alert('Маршрут между этими секторами не найден. Нельзя перескочить через отсутствующие переходы.');if(plan.reason==='insufficient-stamina')return alert('Недостаточно выносливости для такого перехода.');return;}const path=plan.path,routeNames=path.map(locationName).join(' → ');if(!confirm(`Проложен маршрут:
+${routeNames}
+
+Промежуточные сектора придётся пройти по порядку. Идём туда?`))return;if(zoneSocket?.connected){zoneSocket.emit('player:expedition-order',{destination,mode});updateMoveOrderStatus('КПК рассчитывает маршрут…');return;}const now=Date.now();/* nextHopAt=Date.now()+25000 keeps the local hop timer aligned with the route animation. */g.expedition={from:g.loc,to:destination,path,index:0,status:'travelling',mode,startedAt:now,nextHopAt:now+25000};save();startExpeditionVisual();updateMoveOrderStatus(`В пути: ${locationName(g.loc)} → ${locationName(path[1])}. Следующий переход примерно через 25 секунд.`);if(!localExpeditionTimer)localExpeditionTimer=setInterval(advanceLocalExpedition,1000);renderMap();renderZoneMap();}
 let localExpeditionTimer=null,expeditionVisualTimer=null;
 function startExpeditionVisual(){if(expeditionVisualTimer)return;expeditionVisualTimer=setInterval(()=>{if(g.expedition?.status!=='travelling'){clearInterval(expeditionVisualTimer);expeditionVisualTimer=null;return;}if($('world')?.classList.contains('active'))updatePlayerMapMarker();},100);}
 function recordSectorArrival(previousLocation,destination){
@@ -1268,97 +1271,33 @@ function mpRename(){const n=cleanPlayerCallsign($('mpName')?.value);if(n.length<
 function mpSyncLocation(){if(zoneSocket?.connected)zoneSocket.emit('player:update',{location:g.loc,faction:g.faction,name:g.name});}
 
 // Character creation: faction and callsign are chosen before entering the world.
-const factionLore={
- 'Одиночки':'Вольные исследователи Зоны. Не подчиняются единому командованию и ценят личную свободу.',
- 'Долг':'Организованная группировка, стремящаяся сдерживать распространение опасностей Зоны.',
- 'Свобода':'Сталкеры, выступающие за свободное исследование Зоны и доступ к её тайнам.',
- 'Бандиты':'Разрозненные группы, живущие за счёт сделок, влияния и контроля маршрутов.',
- 'Военные':'Силы периметра, поддерживающие установленный порядок и контроль территории.',
- 'Учёные':'Исследовательские группы, изучающие аномальные явления и артефакты.',
- 'Наёмники':'Контрактники, выполняющие заказы различных клиентов.',
- 'Монолит':'Закрытая и крайне враждебная группировка из глубины Зоны.',
- 'Чистое небо':'Исследователи, стремящиеся понять природу Зоны.',
- 'Ренегаты':'Бывшие сталкеры и болотные изгои, живущие отдельными группами и редко доверяющие чужакам.'
-};
+const { factionLore, SETUP_FIRST_NAMES, SETUP_CALLSIGNS, setupBackgrounds, STARTER_BUDGET, STARTER_GEAR, STARTER_WEAPON_SERVER_IDS, factionSuit } = window.ZoneCharacterSetupData;
+const characterSetupProfile = window.ZoneCharacterSetupProfile;
+
+
 let setupFaction='Одиночки';
-let selectedSetupPortrait='stalker-01.webp';
-const SETUP_FIRST_NAMES=['Алексей','Андрей','Антон','Артём','Борис','Вадим','Виктор','Глеб','Денис','Егор','Илья','Кирилл','Максим','Михаил','Никита','Олег','Павел','Роман','Сергей','Фёдор','Ярослав','Ярик','Вася','Миша','Коля','Саня','Женя','Лёша','Дима','Влад'];
-const SETUP_CALLSIGNS=['Пугливый','Прокурор','Пророк','Север','Шорох','Клык','Филин','Грач','Сыч','Ворон','Барс','Кремень','Сухарь','Факел','Пепел','Дозор','Маяк','Кочевник','Беркут','Рысь','Глухарь','Вихрь','Кедр','Туман','Скиталец','Компас','Рубеж','Скат','Молчун','Хмурый','Бродяга','Доктор','Профессор','Шустрый','Лис','Седой','Батя','Тихий','Фартовый','Зверь','Крот','Шаман','Бес','Фокусник','Смотрящий','Механик','Шило','Гонец','Сварог','Ястреб','Каспер','Скрипач','Косой','Рыбак','Старый','Малыш','Капрал','Шахтёр','Книжник','Гвоздь','Проводник','Кремень','Патрон','Лоцман','Хан'];
+
+
+
 function pickSetup(list){return list[Math.floor(Math.random()*list.length)];}
 function generateSetupRealName(){const el=$('setupRealName');if(el)el.value=pickSetup(SETUP_FIRST_NAMES);updateSetupPreview();}
 function generateSetupCallsign(){const el=$('setupCallsign');if(el)el.value=pickSetup(SETUP_CALLSIGNS);updateSetupPreview();}
 function generateSetupIdentity(){generateSetupRealName();generateSetupCallsign();}
 let setupBackground='wanderer';
-const setupBackgrounds={
- wanderer:{desc:'Самостоятельный исследователь. Начинает с небольшим запасом репутации у одиночек.'},
- medic:{desc:'Полевой медик. Получает дополнительную аптечку.'},
- technician:{desc:'Техник-ремонтник. Начинает с дополнительными материалами для обслуживания снаряжения.'},
- researcher:{desc:'Помощник учёных. Получает небольшой стартовый кредит доверия у научных групп.'},
- courier:{desc:'Курьер Зоны. Знает проводников и получает скидку на их услуги.'}
-};
-function selectSetupBackground(id){if(!setupBackgrounds[id])return;setupBackground=id;const d=setupBackgrounds[id];if($('setupBackgroundDesc'))$('setupBackgroundDesc').textContent=d.desc;}
-function renderSetupPortraits(){const host=$('setupPortraits');if(!host)return;host.innerHTML=Array.from({length:16},(_,i)=>{const file=`stalker-${String(i+1).padStart(2,'0')}.webp`;return `<button type="button" class="setup-portrait-choice ${selectedSetupPortrait===file?'selected':''}" onclick="chooseSetupPortrait('${file}')" aria-label="Выбрать портрет ${i+1}"><img src="/assets/portraits/${file}" alt="Портрет сталкера ${i+1}" loading="lazy"></button>`}).join('');const avatar=$('setupAvatar');if(avatar)avatar.innerHTML=`<img src="/assets/portraits/${selectedSetupPortrait}" alt="Выбранный портрет">`;}
-function openSetupPortraitPicker(){renderSetupPortraits();const modal=$('setupPortraitModal');if(modal)modal.hidden=false;}
-function closeSetupPortraitPicker(){const modal=$('setupPortraitModal');if(modal)modal.hidden=true;}
-function chooseSetupPortrait(file){if(!/^stalker-(0[1-9]|1[0-6])\.webp$/.test(file))return;selectedSetupPortrait=file;renderSetupPortraits();closeSetupPortraitPicker();}
+const characterPortraitPicker=characterSetupProfile.createPortraitPicker({getElement:$});
 
-const STARTER_BUDGET=400;
-const STARTER_GEAR={
- weapon_none:{id:'weapon_none',name:'Без основного оружия',type:'Оружие',desc:'Начать без основного оружия.',weight:0,value:0,points:0,slot:'weapon'},
- weapon_pm:{id:'weapon_pm',name:'Пистолет ПМ',type:'Оружие',desc:'Компактное оружие для первых вылазок.',weight:.9,value:420,power:13,price:850,points:55,slot:'weapon'},
- weapon_toz34:{id:'weapon_toz34',name:'ТОЗ-34',type:'Оружие',desc:'Охотничье ружьё для полевых условий.',weight:3.1,value:1700,power:20,price:3100,points:105,slot:'weapon'},
- weapon_aks74u:{id:'weapon_aks74u',name:'АКС-74У',type:'Оружие',desc:'Компактный автомат для опытного новичка.',weight:2.7,value:2300,power:18,price:4200,points:145,slot:'weapon'},
- weapon_ak74:{id:'weapon_ak74',name:'АК-74',type:'Оружие',desc:'Полноразмерный автомат для уверенного бойца.',weight:3.4,value:3100,power:20,price:6800,points:205,slot:'weapon'},
- weapon_vintar:{id:'weapon_vintar',name:'Винтарь-ВС',type:'Оружие',desc:'Точная винтовка под специальный боеприпас.',weight:3.2,value:6800,power:23,price:14500,points:270,slot:'weapon'},
- armor_none:{id:'armor_none',name:'Без бронекостюма',type:'Броня',desc:'Обычная одежда.',weight:0,value:0,points:0,slot:'suit'},
- armor_leather:{id:'armor_leather',name:'Кожаная куртка с пластинами',type:'Броня',desc:'Лёгкая защита для первых переходов.',weight:.7,value:280,defense:2,price:520,points:65,slot:'suit'},
- armor_stalker:{id:'armor_stalker',name:'Комбинезон сталкера М-2',type:'Броня',desc:'Сбалансированный полевой костюм.',weight:1.1,value:1050,defense:3,price:1850,points:115,slot:'suit'},
- armor_zarya:{id:'armor_zarya',name:'Заря',type:'Броня',desc:'Усиленный комбинезон с повышенной защитой.',weight:1.5,value:2200,defense:5,price:3850,points:175,slot:'suit'},
- armor_duty:{id:'armor_duty',name:'Бронекостюм ПСЗ-9д «Долг»',type:'Броня',desc:'Фракционный защитный костюм группировки «Долг».',weight:5,value:2600,defense:6,price:5200,points:185,slot:'suit'},
- armor_freedom:{id:'armor_freedom',name:'Комбинезон «Ветер свободы»',type:'Броня',desc:'Лёгкий костюм группировки «Свобода».',weight:4,value:2100,defense:4,price:4700,points:165,slot:'suit'},
- armor_bandit:{id:'armor_bandit',name:'Куртка бандита',type:'Броня',desc:'Доступная куртка с простыми защитными вставками.',weight:3,value:650,defense:2,price:1200,points:75,slot:'suit'},
- armor_military:{id:'armor_military',name:'Армейский бронекостюм',type:'Броня',desc:'Тяжёлая защитная экипировка военного образца.',weight:8,value:3300,defense:7,price:6800,points:220,slot:'suit'},
- armor_ecologist:{id:'armor_ecologist',name:'Научный костюм ССП-99',type:'Броня',desc:'Защитный костюм для работы в опасной исследовательской среде.',weight:4,value:3000,defense:3,price:6100,points:190,slot:'suit'},
- armor_merc:{id:'armor_merc',name:'Костюм наёмника',type:'Броня',desc:'Универсальный полевой комплект контрактника.',weight:5,value:1800,defense:4,price:3900,points:145,slot:'suit'},
- armor_monolith:{id:'armor_monolith',name:'Костюм «Монолита»',type:'Броня',desc:'Усиленный защитный комплект закрытой группировки.',weight:5,value:2400,defense:5,price:5100,points:180,slot:'suit'},
- armor_clearsky:{id:'armor_clearsky',name:'Броня Чистого неба CS-1',type:'Броня',desc:'Фракционная полевая броня исследовательской группировки.',weight:7,value:1900,defense:5,price:4400,points:155,slot:'suit'},
- armor_renegade:{id:'armor_renegade',name:'Болотный комбинезон ренегата',type:'Броня',desc:'Авторский комплект с защитными накладками для болотных троп.',weight:4,value:950,defense:3,price:2300,points:105,slot:'suit'},
- armor_sunrise:{id:'armor_sunrise',name:'Комбинезон «Заря» (полевой вариант)',type:'Броня',desc:'Лёгкий полевой комплект с умеренной защитой и удобством в переходах.',weight:2.1,value:1700,defense:4,price:3300,points:145,slot:'suit'},
- armor_berill:{id:'armor_berill',name:'Бронекостюм «Берилл-5М»',type:'Броня',desc:'Тяжёлый защитный комплект с акцентом на физическую защиту.',weight:8.5,value:4200,defense:8,price:8900,points:245,slot:'suit'},
- armor_guardian:{id:'armor_guardian',name:'«Страж свободы»',type:'Броня',desc:'Усиленный комплект группировки «Свобода» для длительных выходов.',weight:7.5,value:3900,defense:7,price:8200,points:225,slot:'suit'},
- armor_cs3a:{id:'armor_cs3a',name:'Бронекостюм Чистого Неба CS-3a',type:'Броня',desc:'Тяжёлый комплект исследовательской группировки для опасных экспедиций.',weight:8.2,value:4100,defense:7,price:8500,points:230,slot:'suit'},
- armor_ps5m:{id:'armor_ps5m',name:'Универсальная защита ПС5-М',type:'Броня',desc:'Универсальный защитный комплект с умеренной защитой от разных воздействий.',weight:6.8,value:3200,defense:6,price:6900,points:205,slot:'suit'},
- armor_duty_veteran:{id:'armor_duty_veteran',name:'ПСЗ-7 «Ветеран»',type:'Броня',desc:'Фракционный комплект: Долг. Отдельная модель экипировки с собственными параметрами защиты.',weight:5.4,value:2562,defense:5,price:6100,points:205,slot:'suit'},
- armor_duty_defender:{id:'armor_duty_defender',name:'Броня «Защитник»',type:'Броня',desc:'Фракционный комплект: Долг. Отдельная модель экипировки с собственными параметрами защиты.',weight:7.8,value:4116,defense:8,price:9800,points:255,slot:'suit'},
- armor_freedom_wind:{id:'armor_freedom_wind',name:'Комбинезон «Свободный ветер»',type:'Броня',desc:'Фракционный комплект: Свобода. Отдельная модель экипировки с собственными параметрами защиты.',weight:3.2,value:1806,defense:4,price:4300,points:155,slot:'suit'},
- armor_freedom_wanderer:{id:'armor_freedom_wanderer',name:'Костюм «Странник»',type:'Броня',desc:'Фракционный комплект: Свобода. Отдельная модель экипировки с собственными параметрами защиты.',weight:5.8,value:3024,defense:6,price:7200,points:205,slot:'suit'},
- armor_military_guard:{id:'armor_military_guard',name:'Комплект «Страж периметра»',type:'Броня',desc:'Фракционный комплект: Военные. Отдельная модель экипировки с собственными параметрами защиты.',weight:6.5,value:2730,defense:6,price:6500,points:205,slot:'suit'},
- armor_military_kordon:{id:'armor_military_kordon',name:'Бронекостюм «Кордон-М»',type:'Броня',desc:'Фракционный комплект: Военные. Отдельная модель экипировки с собственными параметрами защиты.',weight:8.7,value:4284,defense:8,price:10200,points:265,slot:'suit'},
- armor_merc_contract:{id:'armor_merc_contract',name:'Костюм «Контракт»',type:'Броня',desc:'Фракционный комплект: Наёмники. Отдельная модель экипировки с собственными параметрами защиты.',weight:4.6,value:1932,defense:4,price:4600,points:165,slot:'suit'},
- armor_merc_blue:{id:'armor_merc_blue',name:'Броня «Синий легион»',type:'Броня',desc:'Фракционный комплект: Наёмники. Отдельная модель экипировки с собственными параметрами защиты.',weight:7.1,value:3654,defense:7,price:8700,points:235,slot:'suit'},
- armor_clearsky_azure:{id:'armor_clearsky_azure',name:'Комбинезон «Лазурь»',type:'Броня',desc:'Фракционный комплект: Чистое небо. Отдельная модель экипировки с собственными параметрами защиты.',weight:4.2,value:2184,defense:5,price:5200,points:180,slot:'suit'},
- armor_loner_mist:{id:'armor_loner_mist',name:'Костюм «Туман»',type:'Броня',desc:'Фракционный комплект: Одиночки. Отдельная модель экипировки с собственными параметрами защиты.',weight:3.8,value:1638,defense:4,price:3900,points:150,slot:'suit'},
- armor_monolith_acolyte:{id:'armor_monolith_acolyte',name:'Костюм «Сектант»',type:'Броня',desc:'Фракционный комплект: Монолит. Отдельная модель экипировки с собственными параметрами защиты.',weight:6.4,value:3192,defense:6,price:7600,points:215,slot:'suit'},
- armor_bandit_collector:{id:'armor_bandit_collector',name:'Куртка «Сборщик»',type:'Броня',desc:'Фракционный комплект: Бандиты. Отдельная модель экипировки с собственными параметрами защиты.',weight:2.8,value:630,defense:2,price:1500,points:80,slot:'suit'},
- armor_renegade_marsh:{id:'armor_renegade_marsh',name:'Комбинезон «Топь»',type:'Броня',desc:'Фракционный комплект: Ренегаты. Отдельная модель экипировки с собственными параметрами защиты.',weight:3.6,value:1092,defense:3,price:2600,points:115,slot:'suit'},
- armor_science_expedition:{id:'armor_science_expedition',name:'Костюм «Экспедиция»',type:'Броня',desc:'Фракционный комплект: Учёные. Отдельная модель экипировки с собственными параметрами защиты.',weight:4.8,value:2856,defense:4,price:6800,points:195,slot:'suit'},
- detector_none:{id:'detector_none',name:'Без детектора',type:'Детектор',desc:'Поиск артефактов без прибора.',weight:0,value:0,points:0,slot:'tool'},
- detector_echo:{id:'detector_echo',name:'Детектор «Отклик»',type:'Детектор',desc:'Базовый прибор для поиска аномальных объектов.',weight:.6,value:220,price:650,points:65,slot:'tool'},
- detector_bear:{id:'detector_bear',name:'Детектор «Медведь»',type:'Детектор',desc:'Более удобный прибор с расширенным диапазоном.',weight:.8,value:650,price:1650,points:115,slot:'tool'},
- backpack_standard:{id:'backpack_standard',name:'Стандартный рюкзак',type:'Рюкзак',desc:'Базовая вместимость 50 кг.',weight:1,value:300,capacity:50,points:0,slot:'backpack'},
- backpack_field:{id:'backpack_field',name:'Полевой рюкзак',type:'Рюкзак',desc:'Вместимость 65 кг.',weight:1.4,value:650,capacity:65,price:1250,points:45,slot:'backpack'},
- backpack_expedition:{id:'backpack_expedition',name:'Экспедиционный рюкзак',type:'Рюкзак',desc:'Вместимость 80 кг.',weight:1.8,value:1500,capacity:80,price:2850,points:75,slot:'backpack'},
- med:{id:'med',name:'Аптечка',type:'Медицина',desc:'Полевой медицинский набор.',weight:.4,value:100,points:25},
- bandage:{id:'bandage',name:'Бинт',type:'Медицина',desc:'Расходный перевязочный материал.',weight:.2,value:45,points:10},
- anti_rad:{id:'anti_rad',name:'Антирад',type:'Медицина',desc:'Средство от радиационного заражения.',weight:.1,value:100,points:20},
- bread:{id:'bread',name:'Хлеб',type:'Еда',desc:'Простой запас еды.',weight:.3,value:35,points:10},
- canned:{id:'canned',name:'Консервы',type:'Еда',desc:'Сытный полевой паёк.',weight:.45,value:65,points:15},
- water:{id:'water',name:'Бутылка воды',type:'Еда',desc:'Запас питьевой воды.',weight:.5,value:25,points:10}
-};
+function selectSetupBackground(id){const normalized=characterSetupProfile.normalizeBackground(id,setupBackgrounds,setupBackground);if(!normalized)return;setupBackground=normalized;const d=setupBackgrounds[normalized];if($('setupBackgroundDesc'))$('setupBackgroundDesc').textContent=d.desc;}
+function renderSetupPortraits(){characterPortraitPicker.render();}
+function openSetupPortraitPicker(){characterPortraitPicker.open();}
+function closeSetupPortraitPicker(){characterPortraitPicker.close();}
+function chooseSetupPortrait(file){characterPortraitPicker.choose(file);}
+
+
+
 // The armory catalogue is larger than the legacy starter list. Expose all
 // weapons that have canonical server-side inventory IDs; unsupported catalogue
 // aliases stay in the encyclopaedia and are not minted into player inventory.
-const STARTER_WEAPON_SERVER_IDS=new Set(['pm_stalker','sig220','beretta','walther_p99','usp_compact','desert_eagle','bm16','winchester1300','spas12','ks23','akm_74','aks74','ak101','ak102','lr300','g36','l85','aug','aek971','asval','groza_oc14','akm_47','m4','sv98','vss_vintorez','remington700','gauss_prototype','pkm','m249','rg6']);
+
 for(const row of weaponCatalogue){
  const [id,name,category,type,caliber,weight,price,rating]=row;
  if(!STARTER_WEAPON_SERVER_IDS.has(id)||STARTER_GEAR[id])continue;
@@ -1367,9 +1306,10 @@ for(const row of weaponCatalogue){
 }
 const STARTER_WEAPON_OPTIONS=Object.values(STARTER_GEAR).filter(item=>item.slot==='weapon').map(item=>item.id);
 let setupLoadout={weapon:'weapon_pm',suit:'armor_leather',tool:'detector_echo',backpack:'backpack_standard',supplies:['med','bread','bandage']};
-function setupSelectedItems(){return [setupLoadout.weapon,setupLoadout.suit,setupLoadout.tool,setupLoadout.backpack,...setupLoadout.supplies].filter(id=>id&&id!=='weapon_none'&&id!=='armor_none'&&id!=='detector_none');}
-function setupSpent(){return setupSelectedItems().reduce((sum,id)=>sum+(STARTER_GEAR[id]?.points||0),0);}
-const factionSuit={ 'Одиночки':'armor_stalker','Долг':'armor_duty','Свобода':'armor_freedom','Бандиты':'armor_bandit','Военные':'armor_military','Учёные':'armor_ecologist','Наёмники':'armor_merc','Монолит':'armor_monolith','Чистое небо':'armor_clearsky','Ренегаты':'armor_renegade' };
+const characterLoadoutSystem=window.ZoneCharacterLoadout.createCharacterLoadoutSystem({getLoadout:()=>setupLoadout,setLoadout:value=>{setupLoadout=value;},getGear:()=>STARTER_GEAR,budget:STARTER_BUDGET});
+function setupSelectedItems(){return characterLoadoutSystem.selectedItems();}
+function setupSpent(){return characterLoadoutSystem.spent();}
+
 function renderSetupLoadout(){
  const root=$('setupLoadoutChoices');if(!root)return;
  const suitOptions=['armor_none','armor_leather','armor_stalker','armor_zarya','armor_duty','armor_freedom','armor_bandit','armor_military','armor_ecologist','armor_merc','armor_monolith','armor_clearsky','armor_renegade','armor_sunrise','armor_berill','armor_guardian','armor_cs3a','armor_ps5m','armor_duty_veteran','armor_duty_defender','armor_freedom_wind','armor_freedom_wanderer','armor_military_guard','armor_military_kordon','armor_merc_contract','armor_merc_blue','armor_clearsky_azure','armor_loner_mist','armor_monolith_acolyte','armor_bandit_collector','armor_renegade_marsh','armor_science_expedition'];
@@ -1380,15 +1320,13 @@ function renderSetupLoadout(){
  updateSetupBudget();
 }
 function changeSetupSlot(slot,id){
- if(!['weapon','suit','tool','backpack'].includes(slot)||!Object.hasOwn(STARTER_GEAR,id))return;
- const previous=setupLoadout[slot];setupLoadout[slot]=id;
- if(setupSpent()>STARTER_BUDGET){setupLoadout[slot]=previous;renderSetupLoadout();const note=$('setupLoadoutNote');if(note){note.textContent='Этот предмет превышает остаток бюджета. Выбери более доступный вариант или убери припасы.';note.classList.add('over-budget');}return;}
+ const result=characterLoadoutSystem.setSlot(slot,id);
+ if(!result.ok){if(result.reason==='over-budget'){renderSetupLoadout();const note=$('setupLoadoutNote');if(note){note.textContent='Этот предмет превышает остаток бюджета. Выбери более доступный вариант или убери припасы.';note.classList.add('over-budget');}}return;}
  renderSetupLoadout();
 }
 function changeSetupSupply(id,delta){
- if(!Object.hasOwn(STARTER_GEAR,id))return;const current=setupLoadout.supplies.filter(x=>x===id).length;
- if(delta>0){if(current>=5)return;setupLoadout.supplies.push(id);if(setupSpent()>STARTER_BUDGET){setupLoadout.supplies.pop();renderSetupLoadout();const note=$('setupLoadoutNote');if(note){note.textContent='Недостаточно очков снабжения для этого припаса.';note.classList.add('over-budget');}return;}}
- else{const index=setupLoadout.supplies.lastIndexOf(id);if(index>=0)setupLoadout.supplies.splice(index,1);}
+ const result=characterLoadoutSystem.changeSupply(id,delta);
+ if(!result.ok){if(result.reason==='over-budget'){renderSetupLoadout();const note=$('setupLoadoutNote');if(note){note.textContent='Недостаточно очков снабжения для этого припаса.';note.classList.add('over-budget');}}return;}
  renderSetupLoadout();
 }
 function updateSetupBudget(){
@@ -1402,17 +1340,17 @@ function updateSetupPreview(){
  const name=cleanPlayerCallsign($('setupCallsign')?.value)||'НОВЫЙ СТАЛКЕР',realName=($('setupRealName')?.value||'').trim(),spawn=$('setupSpawnSelect')?.value||factionSpawn[setupFaction]||'cordon';
  if($('setupPreviewName'))$('setupPreviewName').textContent=((realName?realName+' ':'')+name).toUpperCase();
  if($('setupPreviewFaction'))$('setupPreviewFaction').textContent=setupFaction;
- if($('setupPreviewSpawn'))$('setupPreviewSpawn').textContent=`Точка появления: ${spawnNames[spawn]||spawn}`;const av=$('setupAvatar');if(av)av.innerHTML=`<img src="/assets/portraits/${selectedSetupPortrait}" alt="Портрет персонажа">`;const bg=setupBackgrounds[setupBackground];if($('setupBackgroundDesc')&&bg)$('setupBackgroundDesc').textContent=bg.desc;
+ if($('setupPreviewSpawn'))$('setupPreviewSpawn').textContent=`Точка появления: ${spawnNames[spawn]||spawn}`;characterPortraitPicker.render();const bg=setupBackgrounds[setupBackground];if($('setupBackgroundDesc')&&bg)$('setupBackgroundDesc').textContent=bg.desc;
  if($('setupStarterContract'))$('setupStarterContract').textContent=setupFaction==='Одиночки'?'На Кордоне Волк поможет освоиться, а Сидорович предложит первую работу.':`На базе «${setupFaction}» тебя встретит представитель группировки и выдаст первое поручение.`;
 }
-function resetStarterLoadout(){setupLoadout={weapon:'weapon_pm',suit:factionSuit[setupFaction]||'armor_leather',tool:'detector_echo',backpack:'backpack_standard',supplies:['med','bread','bandage']};renderSetupLoadout();}
+function resetStarterLoadout(){characterLoadoutSystem.reset({suit:factionSuit[setupFaction]||'armor_leather'});renderSetupLoadout();}
 function randomizeStarterLoadout(){
  const groups={weapon:STARTER_WEAPON_OPTIONS,suit:['armor_none','armor_leather','armor_stalker','armor_zarya',factionSuit[setupFaction]||'armor_stalker'],tool:['detector_none','detector_echo','detector_bear'],backpack:['backpack_standard','backpack_field','backpack_expedition']};
  let tries=0;do{for(const [slot,ids] of Object.entries(groups))setupLoadout[slot]=ids[Math.floor(Math.random()*ids.length)];setupLoadout.supplies=['med','bread','bandage'];if(Math.random()>.5)setupLoadout.supplies.push('anti_rad');if(Math.random()>.5)setupLoadout.supplies.push('water');tries++;}while(setupSpent()>STARTER_BUDGET&&tries<100);
  if(setupSpent()>STARTER_BUDGET)resetStarterLoadout();else renderSetupLoadout();
 }
-function setupSpawnOptions(faction){const base=factionSpawn[faction]||'cordon';const owned=(g.locations||[]).filter(l=>l.owner===faction).map(l=>l.id);return [...new Set([base,...owned])].map(id=>(g.locations||[]).find(l=>l.id===id)).filter(Boolean);}
-function updateSetupSpawnOptions(preferred){const options=setupSpawnOptions(setupFaction),select=$('setupSpawnSelect');if(!select)return;const allowed=options.some(l=>l.id===preferred)?preferred:(factionSpawn[setupFaction]||options[0]?.id||'cordon');select.innerHTML=options.map(l=>`<option value="${l.id}">${escapeHtml(l.name)}${l.id===(factionSpawn[setupFaction]||'')?' · основная база':''}</option>`).join('');select.value=allowed;const l=options.find(x=>x.id===allowed);if($('setupSpawnInfo'))$('setupSpawnInfo').textContent=`Место начала: ${l?.name||locationName(allowed)}. Доступны только территории твоей группировки.`;updateSetupPreview();}
+function setupSpawnOptions(faction){return characterSetupProfile.spawnOptions(faction,g.locations,factionSpawn);}
+function updateSetupSpawnOptions(preferred){const options=setupSpawnOptions(setupFaction),select=$('setupSpawnSelect');if(!select)return;const allowed=characterSetupProfile.resolveSpawn(preferred,options,factionSpawn[setupFaction]||'cordon');select.innerHTML=options.map(l=>`<option value="${l.id}">${escapeHtml(l.name)}${l.id===(factionSpawn[setupFaction]||'')?' · основная база':''}</option>`).join('');select.value=allowed;const l=options.find(x=>x.id===allowed);if($('setupSpawnInfo'))$('setupSpawnInfo').textContent=`Место начала: ${l?.name||locationName(allowed)}. Доступны только территории твоей группировки.`;updateSetupPreview();}
 function openCharacterSetup(){
  const root=$('characterSetup');if(!root)return;if(factionSuit[setupFaction]&&setupLoadout.suit==='armor_leather')setupLoadout.suit=factionSuit[setupFaction];
  $('setupCallsign').value=g.name==='Новичок'?'':g.name;$('setupRealName').value=(g.realName||'').trim().split(/\s+/)[0]||'';
@@ -1423,12 +1361,12 @@ function openCharacterSetup(){
 function selectSetupFaction(name){const current=$('setupCallsign').value,real=$('setupRealName').value;setupFaction=name;if(factionSuit[name])setupLoadout.suit=factionSuit[name];if(setupSpent()>STARTER_BUDGET)resetStarterLoadout();openCharacterSetup();updateSetupSpawnOptions(factionSpawn[setupFaction]||'cordon');$('setupCallsign').value=current;$('setupRealName').value=real;updateSetupPreview();}
 function confirmCharacter(){
  const name=cleanPlayerCallsign($('setupCallsign').value);let realName=cleanPlayerCallsign($('setupRealName').value).split(/\s+/)[0];if(!realName){realName=pickSetup(SETUP_FIRST_NAMES);$('setupRealName').value=realName;}
- if(name.length<2)return alert('Позывной должен содержать минимум 2 символа.');if(realName.length<2)return alert('Укажи имя персонажа.');
- if(!g.factions.some(f=>f.name===setupFaction))return alert('Выбери группировку из списка.');
+ const identity=characterSetupProfile.validateIdentity({callsign:name,realName,faction:setupFaction,factions:g.factions});
+ if(identity.reason==='callsign')return alert('Позывной должен содержать минимум 2 символа.');if(identity.reason==='real-name')return alert('Укажи имя персонажа.');if(identity.reason==='faction')return alert('Выбери группировку из списка.');
  // A fresh profile is cloned from the base template, so run migrations again to seed the selected faction's quest catalog.
  migrateWorld();
  const spent=setupSpent();if(spent>STARTER_BUDGET)return alert('Комплект превышает лимит очков снабжения.');
- g.name=name;g.realName=realName;g.faction=setupFaction;g.hp=100;g.radiation=0;g.stamina=85;g.hunger=18;g.thirst=20;g.characterCreated=true;delete g.dead;delete g.deathCause;g.playerPortrait=selectedSetupPortrait;g.background=setupBackground;g.characterTraits=[setupBackground];g.guideDiscount=setupBackground==='courier'?.12:0;const spawn=$('setupSpawnSelect')?.value||factionSpawn[setupFaction]||'cordon';if(!setupSpawnOptions(setupFaction).some(l=>l.id===spawn))return alert('Выбранная стартовая локация не принадлежит твоей группировке.');g.startingLocation=spawn;g.loc=spawn;g.visitedLocations=[...new Set([...(g.visitedLocations||[]),spawn])];g.worldPosition=null;
+ g.name=name;g.realName=realName;g.faction=setupFaction;g.hp=100;g.radiation=0;g.stamina=85;g.hunger=18;g.thirst=20;g.characterCreated=true;delete g.dead;delete g.deathCause;g.playerPortrait=characterPortraitPicker.getSelected();g.background=setupBackground;g.characterTraits=[setupBackground];g.guideDiscount=setupBackground==='courier'?.12:0;const spawn=$('setupSpawnSelect')?.value||factionSpawn[setupFaction]||'cordon';if(!setupSpawnOptions(setupFaction).some(l=>l.id===spawn))return alert('Выбранная стартовая локация не принадлежит твоей группировке.');g.startingLocation=spawn;g.loc=spawn;g.visitedLocations=[...new Set([...(g.visitedLocations||[]),spawn])];g.worldPosition=null;
  // A new character receives only the selected starter kit; the loadout is real inventory, not a visual-only preview.
  g.items=[];g.equipment={weapon:'',sidearm:'',suit:'',tool:'',helmet:'',artifact:'',backpack:''};
  const counts={};for(const id of setupSelectedItems())counts[id]=(counts[id]||0)+1;
@@ -1894,7 +1832,7 @@ function continueZoneGame(){
 function beginNewZoneGame(){
  if(g.characterCreated&&!confirm('Начать новую игру? Текущее локальное сохранение будет заменено.'))return;
  window.ZoneCore.saveManager.remove(window.ZoneCoreConfig.saveKey);
- g=clone(base);g.characterCreated=false;setupFaction='Одиночки';selectedSetupPortrait='stalker-01.webp';setupBackground='wanderer';
+ g=clone(base);g.characterCreated=false;setupFaction='Одиночки';characterPortraitPicker.set(characterSetupProfile.DEFAULT_PORTRAIT);setupBackground='wanderer';
  document.body.classList.remove('title-screen-active');
  $('titleScreen')?.setAttribute('hidden','');
  openCharacterSetup();
