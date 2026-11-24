@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ZONE ONLINE 4.61.0 — MAIN MENU</title>
-<link rel="stylesheet" href="/css/game.css?v=4.61.0"></head><body>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ZONE ONLINE 4.61.1 — MAIN MENU</title>
+<link rel="stylesheet" href="/css/game.css?v=4.61.1"></head><body>
 <div class="title-screen" id="titleScreen" aria-label="Главное меню ZONE ONLINE">
   <div class="title-atmosphere"></div><div class="title-grain"></div>
   <div class="title-brand"><div><div class="title-name">ZONE <span>ONLINE</span></div><div class="title-tagline">ТЕРРИТОРИЯ ЗА ПЕРИМЕТРОМ</div></div></div>
@@ -15,7 +15,7 @@
     <div class="title-panel-bottom"><span>ЗОНА АКТИВНА</span><span>НЕ ТЕРЯЙ БДИТЕЛЬНОСТЬ</span></div>
   </section>
   <div class="title-bottom-left"><span class="title-status-led"></span> СИСТЕМА КПК · ОФЛАЙН / ОНЛАЙН</div>
-  <div class="title-version">ZONE ONLINE · VER. 4.61.0</div>
+  <div class="title-version">ZONE ONLINE · VER. 4.61.1</div>
   <section class="title-options-panel" id="titleOptionsPanel" hidden aria-label="Настройки игры">
     <div class="title-panel-top"><span>ПОЛЕВОЙ ТЕРМИНАЛ / ПАРАМЕТРЫ</span><span>ЛИЧНЫЕ НАСТРОЙКИ</span></div>
     <h2>Настройки</h2>
@@ -169,5 +169,10 @@ window.loadZoneSocketClient = async function loadZoneSocketClient() {
 };
 window.zoneSocketClientReady = window.loadZoneSocketClient();
 </script>
-<script src="/js/content.js?v=4.61.0"></script><script src="/js/stories.js?v=4.61.0"></script><script src="/js/survival.js?v=4.61.0"></script>
-<script src="/js/game.js?v=4.61.0" defer></script></body></html>
+<script src="/js/core/config.js?v=4.61.1"></script>
+<script src="/js/core/event-bus.js?v=4.61.1"></script>
+<script src="/js/core/game-state.js?v=4.61.1"></script>
+<script src="/js/core/save-manager.js?v=4.61.1"></script>
+<script src="/js/core/default-state.js?v=4.61.1"></script>
+<script src="/js/content.js?v=4.61.1"></script><script src="/js/stories.js?v=4.61.1"></script><script src="/js/survival.js?v=4.61.1"></script>
+<script src="/js/game.js?v=4.61.1" defer></script></body></html>
