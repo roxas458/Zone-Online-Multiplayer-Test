@@ -46,6 +46,9 @@ function bootClient() {
   };
   window.document = document; window.localStorage = localStorage;
   vm.createContext(context);
+  for (const file of ['config.js','event-bus.js','game-state.js','save-manager.js','default-state.js']) {
+    vm.runInContext(fs.readFileSync(path.join(root,'public/js/core',file),'utf8'), context, {filename:file});
+  }
   vm.runInContext(fs.readFileSync(path.join(root,'public/js/content.js'),'utf8'), context, {filename:'content.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'public/js/stories.js'),'utf8'), context, {filename:'stories.js'});
   vm.runInContext(fs.readFileSync(path.join(root,'public/js/survival.js'),'utf8'), context, {filename:'survival.js'});
@@ -57,7 +60,8 @@ function bootClient() {
 
 test('4.33.17 technician PDA repair system supports faction technicians and durable item conditions', () => {
   const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
-  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
+  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8') +
+    fs.readFileSync(path.join(root, 'public/js/core/default-state.js'), 'utf8');
   assert.match(game, /function openRepairWorkshop\(npcId\)/);
   assert.match(game, /function repairGearItem\(npcId,itemId\)/);
   assert.match(game, /function repairAllGear\(npcId\)/);
@@ -88,7 +92,8 @@ test('all main browser-game views can be opened after bootstrap', () => {
 
 test('REAL STALKER LIFE keeps world time tied to the real clock and removes fast-forward controls', () => {
   const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
-  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
+  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8') +
+    fs.readFileSync(path.join(root, 'public/js/core/default-state.js'), 'utf8');
   assert.match(html, /Реальное время/);
   assert.doesNotMatch(html, /Продвинуть время/);
   assert.doesNotMatch(game, /g\.hour\+\+|g\.hour\s*\+=|function advance\(/);
@@ -103,7 +108,8 @@ test('encyclopedia view renders and the new navigation target is present', () =>
 
 
 test('4.8 catalogue and point-of-interest expansion covers every sector', () => {
-  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
+  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8') +
+    fs.readFileSync(path.join(root, 'public/js/core/default-state.js'), 'utf8');
   const weapons = game.match(/const weaponCatalogue=\[([\s\S]*?)\n\];/);
   assert.ok(weapons);
   assert.equal((weapons[1].match(/\["[a-z0-9_]+"/g) || []).length, 67);
@@ -117,7 +123,8 @@ test('4.8 catalogue and point-of-interest expansion covers every sector', () => 
 test('4.9 tactical map and mobile PDA navigation are present', () => {
   const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
   const css = fs.readFileSync(path.join(root, 'public/css/game.css'), 'utf8');
-  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
+  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8') +
+    fs.readFileSync(path.join(root, 'public/js/core/default-state.js'), 'utf8');
   assert.match(html, /mobile-dock/);
   assert.match(html, /map-toolbar/);
   assert.match(css, /safe-area-inset-bottom/);
@@ -422,7 +429,8 @@ test('4.18 inventory reference layout exposes backpack, mannequin, quick slots a
 test('4.24 NPC conversations use a full-screen modal with a close control and escape handling', () => {
   const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
   const css = fs.readFileSync(path.join(root, 'public/css/game.css'), 'utf8');
-  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
+  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8') +
+    fs.readFileSync(path.join(root, 'public/js/core/default-state.js'), 'utf8');
   assert.match(html, /id="npcDialogueOverlay"/);
   assert.match(html, /aria-modal="true"/);
   assert.match(css, /\.npc-dialogue-overlay\.open\{display:flex\}/);
@@ -460,9 +468,9 @@ test('4.25 field PDA keeps long-page filters and map controls reachable', () => 
 test('4.33 build labels are consistent', () => {
   const html = fs.readFileSync(path.join(root, 'public/index.html'), 'utf8');
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  assert.equal(pkg.version, '4.61.0');
-  assert.match(html, /BUILD 4\.61\.0/);
-  assert.match(html, /ZONE ONLINE · VER\. 4\.61\.0/);
+  assert.equal(pkg.version, '4.61.1');
+  assert.match(html, /ZONE ONLINE 4\.61\.1/);
+  assert.match(html, /ZONE ONLINE · VER\. 4\.61\.1/);
 });
 
 test('4.32 fieldwork, detector search, journal and map ecology layers are wired into the client', () => {
@@ -515,7 +523,8 @@ test('4.27 trader panel uses local portrait assets for the active trader', () =>
 });
 
 test('4.27 login acknowledgement timeout accounts for Render cold starts', () => {
-  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8');
+  const game = fs.readFileSync(path.join(root, 'public/js/game.js'), 'utf8') +
+    fs.readFileSync(path.join(root, 'public/js/core/default-state.js'), 'utf8');
   assert.match(game, /zoneSocket\.timeout\(15000\)\.emit\('player:hello'/);
   assert.match(game, /timeout:4500,[\s\S]*reconnection:true/);
   assert.match(game, /Сервер подтвердил вход, но не прислал профиль мира/);
@@ -625,7 +634,7 @@ test('4.33 survival and expedition features are wired into the game and server',
   const client=fs.readFileSync(path.join(root,'public/js/game.js'),'utf8');
   const server=fs.readFileSync(path.join(root,'server.js'),'utf8');
   const data=fs.readFileSync(path.join(root,'src/shared/game-data.js'),'utf8');
-  assert.match(html,/survival\.js\?v=4\.61\.0/);
+  assert.match(html,/survival\.js\?v=4\.61\.1/);
   assert.match(html,/Подготовить рюкзак/);
   assert.match(html,/Охота на мутантов/);
   assert.match(client,/function tickSurvival\(/);

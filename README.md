@@ -1,4 +1,26 @@
+# ZONE ONLINE 4.61.1
+
+## 4.61.1 — Modular client foundation
+
+- Extracted the canonical new-game state into `public/js/core/default-state.js`; existing saves still pass through the existing migration logic and are not reset.
+- Added a shared client configuration module, synchronous event bus, single-reference game-state registry, and guarded local save manager.
+- Routed client save reads, writes, and removals through the save manager while retaining the existing local-storage key and server synchronization protocol.
+- Kept `game.js` as a compatibility entry point so the existing inline HTML handlers and legacy systems continue to work during incremental migration.
+- Added regression tests for module load order, save compatibility, event delivery, and shared state identity.
+
 # ZONE ONLINE 4.61.0
+
+### Client architecture status
+
+The browser client now has a modular foundation under `public/js/core/`:
+
+- `config.js` — shared release, storage and timing configuration.
+- `default-state.js` — canonical new-game template, separate from runtime logic.
+- `game-state.js` — shared live-state registry; modules receive the same object reference.
+- `save-manager.js` — guarded local persistence adapter using the legacy `zoneExpandedSave` key.
+- `event-bus.js` — synchronous publish/subscribe channel for client systems.
+
+`game.js` remains the compatibility entry point in this release because the existing interface still uses inline handlers and shared legacy functions. This is an intentional migration stage, not a claim that the entire client has already been split. The next extraction targets are network lifecycle, map/navigation, inventory/economy, and interface rendering; each will be moved with regression tests before the compatibility layer is reduced.
 
 ## 4.61.0 — Deeper Faction Warfare
 
