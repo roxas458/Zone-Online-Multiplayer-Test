@@ -35,7 +35,7 @@ test('client core modules load before the compatibility client and declare a sha
     assert.ok(position > previous, `${source} must load in dependency order`);
     previous = position;
   }
-  assert.ok(html.includes('ZONE ONLINE 4.61.2'));
+  assert.ok(html.includes('ZONE ONLINE 4.61.3'));
 });
 
 test('default game template is extracted without changing its canonical starting values', () => {
